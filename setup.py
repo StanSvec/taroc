@@ -24,7 +24,8 @@ setuptools.setup(
     python_requires='>=3.6',
     packages=setuptools.find_packages(exclude=("test",)),
     install_requires=[
-        "requests>=2.24.0",
+        "aiohttp>=3.6.3",
+        "pypager>=3.0.0",
     ],
     package_data={
         'taroc': ['config/*.yaml'],
