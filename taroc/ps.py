@@ -1,22 +1,19 @@
-import itertools
 import os
 import re
 from collections import namedtuple
 from typing import List, Dict
 
+import itertools
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import FormattedText as FTxt
 from pypager.pager import Pager
 from pypager.source import GeneratorSource
 
-from taroc import util
-
-
 Column = namedtuple('Column', 'name max_width value_fnc')
 
 
-def print_table(items, columns: List[Column], *, show_header: bool, pager: bool):
-    gen = output_gen(items, columns, show_header, stretch_last_column=pager)
+def print_table(items, columns: List[Column], colours=None, *, show_header: bool, pager: bool):
+    gen = output_gen(items, columns, colours, show_header, stretch_last_column=pager)
 
     if pager:
         p = Pager()
@@ -30,7 +27,7 @@ def print_table(items, columns: List[Column], *, show_header: bool, pager: bool)
             pass
 
 
-def output_gen(items, columns: List[Column], show_header: bool, stretch_last_column: bool):
+def output_gen(items, columns: List[Column], colours, show_header: bool, stretch_last_column: bool):
     """
     Table Representation:
         Each column has padding of size 1 from each side applied in both header and values
@@ -52,9 +49,10 @@ def output_gen(items, columns: List[Column], show_header: bool, stretch_last_col
         separator_line = " ".join("-" * (column_width[c]) for c in columns)
         yield FTxt([('bold', separator_line)])
 
-    for j in itertools.chain(first_fifty, job_iter):
-        line = f.format(*(_limit_text(c.value_fnc(j), column_width[c] - 2) for c in columns))
-        yield FTxt([(_get_color(j), line)])
+    for item in itertools.chain(first_fifty, job_iter):
+        line = f.format(*(_limit_text(c.value_fnc(item), column_width[c] - 2) for c in columns))
+        colour = colours(item) if colours else ''
+        yield FTxt([(colour, line)])
 
 
 def _calc_widths(items, columns: List[Column], stretch_last_column: bool):
@@ -78,26 +76,6 @@ def _calc_widths(items, columns: List[Column], stretch_last_column: bool):
     return column_width
 
 
-def _get_color(job_info):
-    if not hasattr(job_info, 'state'):  # TODO redesign
-        return ''
-    state = job_info.state
-
-    if state.is_before_execution():
-        return 'green'
-
-    if state.is_executing():
-        return '#44aaff'
-
-    if state.is_failure():
-        return 'red'
-
-    if state.is_unexecuted() or job_info.warnings:
-        return 'orange'
-
-    return ''
-
-
 def format_dt(dt):
     if not dt:
         return 'N/A'
@@ -105,25 +83,10 @@ def format_dt(dt):
     return dt.astimezone().replace(tzinfo=None).isoformat(sep=' ', timespec='milliseconds')
 
 
-def execution_time(job_info):
-    if not job_info.lifecycle.executed():
-        return 'N/A'
-
-    if job_info.state.is_executing():
-        exec_time = util.utc_now() - job_info.lifecycle.execution_started()
-    else:
-        exec_time = job_info.lifecycle.execution_time()
-    return util.format_timedelta(exec_time)
-
-
 def _limit_text(text, limit):
     if not text or len(text) <= limit:
         return text
     return text[:limit - 2] + '..'
-
-
-def print_state_change(job_info):
-    print(f"{job_info.job_id}@{job_info.instance_id} -> {job_info.state.name}")
 
 
 def parse_table(output, columns) -> List[Dict[Column, str]]:
