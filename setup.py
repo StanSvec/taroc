@@ -24,7 +24,7 @@ setuptools.setup(
     python_requires='>=3.6',
     packages=setuptools.find_packages(exclude=("test",)),
     install_requires=[
-        "aiohttp>=3.6.3",
+        "asyncssh>=2.6.0",
         "pypager>=3.0.0",
     ],
     package_data={
