@@ -25,7 +25,8 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=("test",)),
     install_requires=[
         "asyncssh>=2.6.0",
-        "pypager>=3.0.0",
+        "rich>=10.7.0",
+        "sshconf>=0.2.2",
     ],
     package_data={
         'taroc': ['config/*.yaml'],

@@ -2,8 +2,7 @@ import asyncio
 from queue import Queue
 from threading import Thread
 
-from taroc import ps, sshclient
-from taroc.view import instance
+from taroc import sshclient
 
 _POISON = None
 
@@ -23,4 +22,5 @@ def _start_print(queue):
 
 
 def _print(queue):
-    ps.print_table(iter(lambda: queue.get(), _POISON), instance.DEFAULT_COLUMNS, show_header=True, pager=False)
+    # ps.print_table(iter(lambda: queue.get(), _POISON), instance.DEFAULT_COLUMNS, show_header=True, pager=False)
+    pass
