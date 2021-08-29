@@ -7,6 +7,7 @@ def parse_args(args):
     # TODO destination required
     parser = argparse.ArgumentParser(description='Manage all your jobs remotely with Taro CLI client')
     common = argparse.ArgumentParser()  # parent parser for subparsers in case they need to share common options
+    common.add_argument('--set', type=str, action='append', help='override value of configuration field')
     subparsers = parser.add_subparsers(dest='action')  # command/action
 
     _init_ps_parser(common, subparsers)

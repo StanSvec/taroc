@@ -2,6 +2,7 @@ import itertools
 import os
 import secrets
 from datetime import datetime, timezone
+from typing import Dict
 
 import yaml
 
@@ -23,6 +24,19 @@ def read_yaml(stream) -> NestedNamespace:
 def read_yaml_file(file_path) -> NestedNamespace:
     with open(file_path, 'r') as file:
         return utilns.wrap_namespace(yaml.safe_load(file))
+
+
+def split_params(params, kv_sep="=") -> Dict[str, str]:
+    f"""
+    Converts sequence of values in format "key{kv_sep}value" to dict[key, value]
+    """
+
+    def split(s):
+        if len(s) < 3 or kv_sep not in s[1:-1]:
+            raise ValueError(f"Parameter must be in format: param{kv_sep}value")
+        return s.split(kv_sep)
+
+    return {k: v for k, v in (split(set_opt) for set_opt in params)}
 
 
 # TODO check whether the functions below are needed
