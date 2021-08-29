@@ -6,7 +6,7 @@ SSH_CONFIG_ENABLED = 'ssh_config.enabled'
 
 
 def load_default():
-    cns = util.read_yaml(resources.read_text('config', paths.CONFIG_FILE))
+    cns = util.read_yaml(resources.read_text('taroc.config', paths.CONFIG_FILE))
     _set_attributes(cns)
 
 
