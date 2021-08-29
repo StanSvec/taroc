@@ -21,12 +21,14 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     packages=setuptools.find_packages(exclude=("test",)),
     install_requires=[
+        "PyYAML>=5.1.2",
         "asyncssh>=2.6.0",
         "rich>=10.7.0",
         "sshconf>=0.2.2",
+        "pyxdg>=0.27",
     ],
     package_data={
         'taroc': ['config/*.yaml'],

@@ -1,7 +1,31 @@
 import itertools
+import os
 import secrets
 from datetime import datetime, timezone
 
+import yaml
+
+from taroc import utilns
+from taroc.utilns import NestedNamespace
+
+
+def expand_user(file):
+    if not isinstance(file, str) or not file.startswith('~'):
+        return file
+
+    return os.path.expanduser(file)
+
+
+def read_yaml(stream) -> NestedNamespace:
+    return utilns.wrap_namespace(yaml.safe_load(stream))
+
+
+def read_yaml_file(file_path) -> NestedNamespace:
+    with open(file_path, 'r') as file:
+        return utilns.wrap_namespace(yaml.safe_load(file))
+
+
+# TODO check whether the functions below are needed
 
 def unique_timestamp_hex(random_suffix_length=4):
     return secrets.token_hex(random_suffix_length) + format(int(datetime.utcnow().timestamp() * 1000000), 'x')[::-1]
