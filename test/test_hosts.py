@@ -25,7 +25,7 @@ def _remove_test_config_():
         host_file.unlink()
 
 
-def test_hosts():
+def test_no_hosts_specified_include_all():
     config = """\
         [all]
         host_a
