@@ -63,7 +63,31 @@ def test_no_hosts_specified_include_default():
     """
 
     _create_test_config(config)
-    name_to_hosts = hosts.read(HOSTS_FILE, Include.DEFAULT_ONLY)
+    name_to_hosts = hosts.read(HOSTS_FILE, no_host_specified=Include.DEFAULT_ONLY)
 
     assert {'default'} == set(name_to_hosts.keys())
     assert name_to_hosts['default'] == ['host0', 'host_a']
+
+
+def test_hosts_specified():
+    config = """\
+        [all]
+        host_a
+        
+        [default]
+        host0
+    
+        [hosts1]
+        host1
+        
+        [hosts2]
+        host1
+        host2
+    """
+
+    _create_test_config(config)
+    name_to_hosts = hosts.read(HOSTS_FILE, 'hosts1', 'hosts2')
+
+    assert {'hosts1', 'hosts2'} == set(name_to_hosts.keys())
+    assert name_to_hosts['hosts1'] == ['host1', 'host_a']
+    assert name_to_hosts['hosts2'] == ['host1', 'host2', 'host_a']

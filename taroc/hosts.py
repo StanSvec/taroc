@@ -17,7 +17,7 @@ class Include(Enum):
     ALL = auto()
 
 
-def read(hosts_file, no_host_specified=Include.ALL, *hosts) -> dict[str, List[str]]:
+def read(hosts_file, *hosts, no_host_specified=Include.ALL) -> dict[str, List[str]]:
     hosts_file_path = paths.lookup_file_in_config_path(hosts_file)
     config = configparser.ConfigParser(allow_no_value=True, default_section='all')
     config.read(hosts_file_path)
