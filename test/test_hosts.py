@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from taroc import hosts
+from taroc.hosts import Include
 
 HOSTS_FILE = 'test.hosts'
 
@@ -47,3 +48,22 @@ def test_no_hosts_specified_include_all():
     assert {'all', 'default', 'hosts1', 'hosts2'} == set(name_to_hosts.keys())
     assert name_to_hosts['default'] == ['host0', 'host_a']
     assert name_to_hosts['hosts2'] == ['host1', 'host2', 'host_a']
+
+
+def test_no_hosts_specified_include_default():
+    config = """\
+        [all]
+        host_a
+        
+        [default]
+        host0
+    
+        [hosts1]
+        host1
+    """
+
+    _create_test_config(config)
+    name_to_hosts = hosts.read(HOSTS_FILE, Include.DEFAULT_ONLY)
+
+    assert {'default'} == set(name_to_hosts.keys())
+    assert name_to_hosts['default'] == ['host0', 'host_a']
