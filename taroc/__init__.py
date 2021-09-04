@@ -1,4 +1,4 @@
-from taroc import cfgfile, paths, cfg
+from taroc import cfgfile, paths, cfg, sshclient
 
 
 def load_defaults(**kwargs):
@@ -13,3 +13,7 @@ def load_config(config=None, **kwargs):
 
 def setup(**kwargs):
     cfg.set_variables(**kwargs)
+
+
+def ps(*hosts):
+    return sshclient.execute('ps -f json', *hosts)
