@@ -1,26 +1,16 @@
-import asyncio
-from queue import Queue
-from threading import Thread
+from rich.live import Live
+from time import sleep
 
-from taroc import sshclient
-
-_POISON = None
+from tarocapp import view
 
 
 def run(args):
-    q = Queue()
-    _start_print(q)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(sshclient.fetch('ps', q))
-    q.put(_POISON)
-
-
-def _start_print(queue):
-    t = Thread(target=_print, args=(queue,))
-    t.start()
-
-
-def _print(queue):
-    # ps.print_table(iter(lambda: queue.get(), _POISON), instance.DEFAULT_COLUMNS, show_header=True, pager=False)
-    pass
+    jobs_view = view.create_job_view(2, 'Running Jobs')
+    with Live(jobs_view) as live_view:
+        sleep(1)
+        r1 = ['host1', 'job1', 'instance1', '2012-09-02', '2012-09-02', '2h', 'RUNNING', '', 'Bla bla']
+        jobs_view.add_host_rows('any', [r1])
+        live_view.refresh()
+        sleep(1)
+        jobs_view.add_host_rows('any', [r1])
+        live_view.refresh()
