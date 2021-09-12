@@ -16,4 +16,4 @@ def setup(**kwargs):
 
 
 def ps(*hosts):
-    return sshclient.execute('ps -f json', *hosts)
+    return sshclient.create_tasks('ps -f json', *hosts)

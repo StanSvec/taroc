@@ -4,6 +4,7 @@ from xdg import BaseDirectory
 
 CONFIG_DIR = 'taroc'
 CONFIG_FILE = 'taroc.yaml'
+SSH_HOSTS = 'ssh.hosts'
 
 
 def lookup_config_file():
