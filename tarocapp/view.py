@@ -7,11 +7,6 @@ from rich.progress import Progress, BarColumn, TimeRemainingColumn
 from rich.table import Table
 
 
-def create_job_view(hosts_count, table_title):
-    return JobsView(hosts_count, table_title, ['Host', 'Job ID', 'Instance ID', 'Created', 'Ended', 'Execution Time',
-                                               'State', 'Warnings', 'Status (last output)'])
-
-
 def _init_table(table_title, columns):
     table = Table(title=table_title, box=box.SIMPLE)
     for column in columns:
@@ -22,7 +17,7 @@ def _init_table(table_title, columns):
 
 class JobsView:
 
-    def __init__(self, hosts_count, table_title, columns):
+    def __init__(self, *, hosts_count, table_title, columns):
         self.status_panel = StatusPanel(hosts_count)
         self.table = _init_table(table_title, columns)
         self.view = Group(self.status_panel, self.table)
@@ -45,7 +40,7 @@ class StatusPanel:
             BarColumn(),
             "[progress.status]{task.completed}/{task.total}",
             TimeRemainingColumn())
-        self.task = self.progress_bar.add_task('[#ffc107]Description[/]', total=hosts_count)
+        self.task = self.progress_bar.add_task('[#ffc107]Progress[/]', total=hosts_count)
         columns = Columns([self.progress_bar, self.hosts_completed, SingleValue('Total', hosts_count)])
         self.panel = Panel(columns, title="[#009688]Status[/]", style='#009688')
 
