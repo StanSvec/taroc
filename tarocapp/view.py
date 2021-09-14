@@ -55,9 +55,9 @@ class StatusPanel:
             "[progress.status]{task.completed}/{task.total}",
             TimeRemainingColumn())
         self.task = self.progress_bar.add_task('[#ffc107]Progress[/]', total=hosts_count)
-        columns = Columns([self.progress_bar,
-                           Padding(self.hosts_completed, (0, 0, 0, 3)),
-                           SingleValue('Total', hosts_count, 5)])
+        columns = Columns([Padding(self.progress_bar, (0, 3, 0, 0)),
+                           self.hosts_completed,
+                           Text(f"Total: {hosts_count}", style="#ffc107")])
         self.panel = Panel(columns, title="[#009688]Status[/]", style='#009688')
 
     def completed(self):
