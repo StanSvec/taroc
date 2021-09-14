@@ -18,11 +18,11 @@ async def run_ps(args):
     jobs_view = JobsView(hosts_count=len(host_to_task), columns=COLUMNS)
     with Live(jobs_view) as live_view:
         for next_done in asyncio.as_completed(host_to_task.values()):
-            host_instances = await next_done
-            rows = [_instance_to_row(host_instances[0], inst) for inst in host_instances[1]]
-            jobs_view.add_host_rows(host_instances[0], rows)
+            host, jobs = await next_done
+            rows = [_to_job_row(host, job) for job in jobs]
+            jobs_view.add_host_rows(host, rows)
             live_view.refresh()
 
 
-def _instance_to_row(host, inst):
-    return [host, inst['job_id'], 'instance1', '2012-09-02', '2012-09-02', '2h', 'RUNNING', '', 'Bla bla']
+def _to_job_row(host, job):
+    return [host, job['job_id'], 'instance1', '2012-09-02', '2012-09-02', '2h', 'RUNNING', '', 'Bla bla']
