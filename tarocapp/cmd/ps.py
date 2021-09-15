@@ -1,8 +1,10 @@
+import itertools
 import asyncio
 
 from rich.live import Live
 
 import taroc
+from taroc import hosts
 from tarocapp.view import JobsView
 
 COLUMNS = ['Host', 'Job ID', 'Instance ID', 'Created', 'Ended', 'Execution Time', 'State', 'Warnings',
@@ -14,7 +16,14 @@ def run(args):
 
 
 async def run_ps(args):
-    host_to_task = taroc.ps('ciserver', 'prdextdata')
+    try:
+        group_hosts = hosts.read_ssh_hosts()
+    except FileNotFoundError:
+        print('SSH hosts file not found')
+        exit(-1)
+
+    all_hosts = itertools.chain.from_iterable(group_hosts.values())
+    host_to_task = taroc.ps(*all_hosts)
     jobs_view = JobsView(hosts_count=len(host_to_task), columns=COLUMNS)
     with Live(jobs_view) as live_view:
         for next_done in asyncio.as_completed(host_to_task.values()):

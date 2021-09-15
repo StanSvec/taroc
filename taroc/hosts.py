@@ -17,7 +17,19 @@ class Include(Enum):
     ALL = auto()
 
 
+def read_ssh_hosts(*hosts, no_host_specified=Include.ALL):
+    """Returns dictionary of {hosts_name to hosts} entries from SSH hosts file
+    :return: hosts_name to hosts dict
+    :raise FileNotFoundError: when SSH hosts file cannot be found
+    """
+    return read(paths.SSH_HOSTS, *hosts, no_host_specified=no_host_specified)
+
+
 def read(hosts_file, *hosts, no_host_specified=Include.ALL) -> dict[str, List[str]]:
+    """Returns dictionary of {hosts_name to hosts} entries from provided hosts file
+    :return: hosts_name to hosts dict
+    :raise FileNotFoundError: when hosts file cannot be found
+    """
     hosts_file_path = paths.lookup_file_in_config_path(hosts_file)
     config = configparser.ConfigParser(allow_no_value=True, default_section='all')
     config.read(hosts_file_path)
