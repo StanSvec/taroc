@@ -43,11 +43,11 @@ def test_no_hosts_specified_include_all():
     """
 
     _create_test_config(config)
-    name_to_hosts = hosts.read(HOSTS_FILE)
+    group_to_hosts = hosts.read(HOSTS_FILE)
 
-    assert {'all', 'default', 'hosts1', 'hosts2'} == set(name_to_hosts.keys())
-    assert name_to_hosts['default'] == ['host0', 'host_a']
-    assert name_to_hosts['hosts2'] == ['host1', 'host2', 'host_a']
+    assert {'all', 'default', 'hosts1', 'hosts2'} == set(group_to_hosts.keys())
+    assert group_to_hosts['default'] == ['host0', 'host_a']
+    assert group_to_hosts['hosts2'] == ['host1', 'host2', 'host_a']
 
 
 def test_no_hosts_specified_include_default():
@@ -63,10 +63,10 @@ def test_no_hosts_specified_include_default():
     """
 
     _create_test_config(config)
-    name_to_hosts = hosts.read(HOSTS_FILE, no_host_specified=Include.DEFAULT_ONLY)
+    group_to_hosts = hosts.read(HOSTS_FILE, no_group=Include.DEFAULT_ONLY)
 
-    assert {'default'} == set(name_to_hosts.keys())
-    assert name_to_hosts['default'] == ['host0', 'host_a']
+    assert {'default'} == set(group_to_hosts.keys())
+    assert group_to_hosts['default'] == ['host0', 'host_a']
 
 
 def test_hosts_specified():
@@ -86,8 +86,8 @@ def test_hosts_specified():
     """
 
     _create_test_config(config)
-    name_to_hosts = hosts.read(HOSTS_FILE, 'hosts1', 'hosts2')
+    group_to_hosts = hosts.read(HOSTS_FILE, 'hosts1', 'hosts2')
 
-    assert {'hosts1', 'hosts2'} == set(name_to_hosts.keys())
-    assert name_to_hosts['hosts1'] == ['host1', 'host_a']
-    assert name_to_hosts['hosts2'] == ['host1', 'host2', 'host_a']
+    assert {'hosts1', 'hosts2'} == set(group_to_hosts.keys())
+    assert group_to_hosts['hosts1'] == ['host1', 'host_a']
+    assert group_to_hosts['hosts2'] == ['host1', 'host2', 'host_a']
