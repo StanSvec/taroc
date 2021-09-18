@@ -1,6 +1,9 @@
+import sys
+
 import taroc
 from taroc import util
 from tarocapp import cmd, cli
+from tarocapp.err import InvalidExecutionError
 
 
 def main_cli():
@@ -18,7 +21,12 @@ def main(args):
     """
     args_ns = cli.parse_args(args)
     init_taroc(args_ns)
-    cmd.run(args_ns)
+
+    try:
+        cmd.run(args_ns)
+    except InvalidExecutionError as e:
+        print("Error: " + str(e), file=sys.stderr)
+        raise SystemExit(1)
 
 
 def init_taroc(args):

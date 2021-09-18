@@ -5,6 +5,7 @@ from rich.live import Live
 
 import taroc
 from taroc import hosts
+from tarocapp.err import InvalidExecutionError
 from tarocapp.view import JobsView
 
 COLUMNS = ['Host', 'Job ID', 'Instance ID', 'Created', 'Ended', 'Execution Time', 'State', 'Warnings',
@@ -12,17 +13,21 @@ COLUMNS = ['Host', 'Job ID', 'Instance ID', 'Created', 'Ended', 'Execution Time'
 
 
 def run(args):
-    asyncio.run(run_ps(args))
+    group_to_hosts = _group_to_hosts(args)
+    asyncio.run(run_ps(group_to_hosts))
 
 
-async def run_ps(args):
+def _group_to_hosts(args):
+    if args.host:
+        return {'cli_args': args.host}
+
     try:
-        group_to_hosts = hosts.read_ssh_hosts()
+        return hosts.read_ssh_hosts()
     except FileNotFoundError:
-        print('SSH hosts file not found')
-        exit(-1)
-        return  # To remove the assignment warning
+        raise InvalidExecutionError('No hosts provided and SSH hosts file not found')
 
+
+async def run_ps(group_to_hosts):
     all_hosts = itertools.chain.from_iterable(group_to_hosts.values())
     host_to_task = taroc.ps(*all_hosts)
     jobs_view = JobsView(hosts_count=len(host_to_task), columns=COLUMNS)

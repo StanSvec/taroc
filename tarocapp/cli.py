@@ -31,4 +31,4 @@ def _init_ps_parser(common, subparsers):
     """
 
     ps_parser = subparsers.add_parser(ACTION_PS, parents=[common], description='Show running jobs', add_help=False)
-    ps_parser.add_argument('-i', '--inst', '--instance', type=str, help='instance filter')
+    ps_parser.add_argument('-H', '--host', type=str, action='append', help='taro host to communicate with')
