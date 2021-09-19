@@ -6,13 +6,14 @@ from rich.live import Live
 
 import taroc
 from taroc import hosts
+from taroc.job import JobInstance
 from tarocapp.err import InvalidExecutionError
 from tarocapp.view import JobsView
 
-COLUMNS = ['Host', 'Job ID', 'Instance ID', 'Created', 'Ended', 'Execution Time', 'State', 'Warnings',
+COLUMNS = ['Host', 'Job ID', 'Instance ID', 'Created', 'Execution Time', 'State', 'Warnings',
            'Status (last output)']
 
-Row = namedtuple('Row', 'host job_id instance_id created ended execution_time state warnings status')
+Row = namedtuple('Row', 'host job_id instance_id created execution_time state warnings status')
 
 
 def run(args):
@@ -42,6 +43,6 @@ async def run_ps(group_to_hosts):
             live_view.refresh()
 
 
-def _to_job_row(host, job):
-    return Row(host, job['job_id'], 'instance1', '2012-09-02', '2012-09-02', '2h', 'RUNNING', '',
-               '[yellow]Bla bla[/yellow]')
+def _to_job_row(host, job: JobInstance):
+    return Row(host, job.job_id, job.instance_id, job.created, job.execution_time, job.state, str(job.warnings),
+               job.status)
