@@ -1,9 +1,9 @@
-import itertools
 import os
 import secrets
 from datetime import datetime, timezone
-from typing import Dict
+from typing import Dict, Optional
 
+import itertools
 import yaml
 
 from taroc import utilns
@@ -49,7 +49,7 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def dt_from_utc_str(str_ts, is_iso=True):
+def dt_from_utc_str(str_ts, is_iso=True) -> Optional[datetime]:
     if not str_ts:
         return None
     sep = "T" if is_iso else " "
