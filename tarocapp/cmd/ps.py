@@ -1,4 +1,5 @@
 import asyncio
+from collections import namedtuple
 
 import itertools
 from rich.live import Live
@@ -10,6 +11,8 @@ from tarocapp.view import JobsView
 
 COLUMNS = ['Host', 'Job ID', 'Instance ID', 'Created', 'Ended', 'Execution Time', 'State', 'Warnings',
            'Status (last output)']
+
+Row = namedtuple('Row', 'host job_id instance_id created ended execution_time state warnings status')
 
 
 def run(args):
@@ -40,4 +43,5 @@ async def run_ps(group_to_hosts):
 
 
 def _to_job_row(host, job):
-    return [host, job['job_id'], 'instance1', '2012-09-02', '2012-09-02', '2h', 'RUNNING', '', 'Bla bla']
+    return Row(host, job['job_id'], 'instance1', '2012-09-02', '2012-09-02', '2h', 'RUNNING', '',
+               '[yellow]Bla bla[/yellow]')
