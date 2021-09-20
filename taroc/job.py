@@ -92,21 +92,22 @@ class JobInstance:
 
 
 def dto_to_job_instance(dct):
+    lc = dct['lifecycle']
     exec_error = ExecutionError(dct['exec_error']) if dct['exec_error'] is not None else None
-    JobInstance(dct['job_id'],
-                dct['instance_id'],
-                _dto_to_state_changes(dct),
-                ExecutionState.from_str(dct['state']),
-                util.dt_from_utc_str(dct['created']),
-                util.dt_from_utc_str(dct['last_changed']),
-                util.dt_from_utc_str(dct['execution_started']),
-                util.dt_from_utc_str(dct['execution_finished']),
-                timedelta(seconds=dct['execution_time']) if dct.get('execution_time') is not None else None,
-                dct['status'],
-                dct['warnings'],
-                exec_error)
+    return JobInstance(dct['job_id'],
+                       dct['instance_id'],
+                       _dto_to_state_changes(lc),
+                       ExecutionState.from_str(lc['state']),
+                       util.dt_from_utc_str(lc['created']),
+                       util.dt_from_utc_str(lc['last_changed']),
+                       util.dt_from_utc_str(lc['execution_started']),
+                       util.dt_from_utc_str(lc['execution_finished']),
+                       timedelta(seconds=lc['execution_time']) if lc.get('execution_time') is not None else None,
+                       dct['status'],
+                       dct['warnings'],
+                       exec_error)
 
 
-def _dto_to_state_changes(dct):
+def _dto_to_state_changes(lifecycle):
     return {ExecutionState.from_str(state_change['state']): util.dt_from_utc_str(state_change['changed'])
-            for state_change in dct['lifecycle']['state_changes']}
+            for state_change in lifecycle['state_changes']}

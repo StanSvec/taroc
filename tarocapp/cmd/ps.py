@@ -5,7 +5,7 @@ import itertools
 from rich.live import Live
 
 import taroc
-from taroc import hosts
+from taroc import hosts, util
 from taroc.job import JobInstance
 from tarocapp.err import InvalidExecutionError
 from tarocapp.view import JobsView
@@ -44,5 +44,18 @@ async def run_ps(group_to_hosts):
 
 
 def _to_job_row(host, job: JobInstance):
-    return Row(host, job.job_id, job.instance_id, job.created, job.execution_time, job.state, str(job.warnings),
+    return Row(host,
+               job.job_id,
+               job.instance_id,
+               _format_dt(job.created),
+               util.format_timedelta(job.execution_time),
+               job.state.name,
+               str(job.warnings),
                job.status)
+
+
+def _format_dt(dt):
+    if not dt:
+        return 'N/A'
+
+    return dt.astimezone().replace(tzinfo=None).isoformat(sep=' ', timespec='milliseconds')
