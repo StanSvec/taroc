@@ -91,7 +91,7 @@ class JobInstance:
     execution_error: Optional[ExecutionError]
 
 
-def dto_to_job_instance(dct):
+def dto_to_job_instance(dct) -> JobInstance:
     lc = dct['lifecycle']
     exec_error = ExecutionError(dct['exec_error']) if dct['exec_error'] is not None else None
     return JobInstance(dct['job_id'],
