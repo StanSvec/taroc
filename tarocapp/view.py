@@ -4,7 +4,7 @@ from rich.console import Group
 from rich.padding import Padding
 from rich.text import Text
 from rich.panel import Panel
-from rich.progress import Progress, BarColumn, TimeRemainingColumn
+from rich.progress import Progress, BarColumn, TimeRemainingColumn, TimeElapsedColumn, SpinnerColumn
 from rich.spinner import Spinner
 from rich.table import Table
 
@@ -28,7 +28,7 @@ class JobsView:
 
     def add_host_rows(self, host, rows):
         self._hosts_completed += 1
-        self._status_panel.completed()
+        self._status_panel.completed(len(rows))
         for row in rows:
             self._table.add_row(*row)
 
@@ -48,21 +48,21 @@ class JobsView:
 class StatusPanel:
 
     def __init__(self, hosts_count):
-        self.hosts_completed = SingleValue('Completed', 0, 5)
+        self.instance_count = SingleValue('Instances', 0, 5)
         self.progress_bar = Progress(
             "[progress.description]{task.description}",
             BarColumn(),
             "[progress.status]{task.completed}/{task.total}",
-            TimeRemainingColumn())
-        self.task = self.progress_bar.add_task('[#ffc107]Progress[/]', total=hosts_count)
+            TimeElapsedColumn())
+        self.task = self.progress_bar.add_task('[#ffc107]Hosts[/]', total=hosts_count)
         columns = Columns([Padding(self.progress_bar, (0, 3, 0, 0)),
-                           self.hosts_completed,
+                           self.instance_count,
                            Text(f"Total: {hosts_count}", style="#ffc107")])
         self.panel = Panel(columns, title="[#009688]Status[/]", style='#009688')
 
-    def completed(self):
+    def completed(self, instance_count):
         self.progress_bar.update(self.task, advance=1)
-        self.hosts_completed.value += 1
+        self.instance_count.value += instance_count
 
     def __rich__(self):
         return self.panel
