@@ -1,12 +1,12 @@
 import asyncio
 import json
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Generic, List, Awaitable
+from typing import TypeVar, Callable, Generic, Awaitable
 
 import asyncssh
 
 from taroc import cfg, job
-from taroc.job import JobInstance
+from taroc.job import JobInstances
 
 
 @dataclass(frozen=True)
@@ -31,15 +31,15 @@ class Response(Generic[T]):
 
     host: str
     success: bool
-    body_obj: T
+    resp_obj: T
 
 
-def create_tasks(command: str, resp_deser: Callable[[str], T], *hosts: HostInfo) \
+def create_tasks(command: str, resp_deser: Callable[[HostInfo, str], T], *hosts: HostInfo) \
         -> dict[HostInfo, Awaitable[Response[T]]]:
     return {host_info: _exec(host_info, command, resp_deser) for host_info in hosts}
 
 
-async def _exec(host_info: HostInfo, command: str, resp_deser: Callable[[str], T]) -> Response[T]:
+async def _exec(host_info: HostInfo, command: str, resp_deser: Callable[[HostInfo, str], T]) -> Response[T]:
     conn_task = asyncssh.connect(host_info.host, login_timeout=cfg.ssh_con_timeout)
     try:
         conn = await asyncio.wait_for(conn_task, cfg.ssh_con_timeout)
@@ -47,16 +47,16 @@ async def _exec(host_info: HostInfo, command: str, resp_deser: Callable[[str], T
         return Response(host_info.host, False, None)
 
     async with conn:
-        result = await conn.run(f"python3 -m taroapp {command}", check=True, timeout=cfg.ssh_run_timeout)
+        response = await conn.run(f"python3 -m taroapp {command}", check=True, timeout=cfg.ssh_run_timeout)
 
-    result_str = result.stdout
-    resp_body: T = resp_deser(host_info, result_str)
-    return Response(host_info.host, True, resp_body)
+    resp_str = response.stdout
+    resp_obj: T = resp_deser(host_info, resp_str)
+    return Response(host_info.host, True, resp_obj)
 
 
-def ps(*hosts: HostInfo) -> dict[HostInfo, Awaitable[Response[List[JobInstance]]]]:
+def ps(*hosts: HostInfo) -> dict[HostInfo, Awaitable[Response[JobInstances]]]:
     return create_tasks('ps -f json', _str_to_job_instances, *hosts)
 
 
-def _str_to_job_instances(host_info: HostInfo, val: str) -> List[JobInstance]:
-    return [job.dto_to_job_instance(host_info.host, as_dict) for as_dict in json.loads(val)]
+def _str_to_job_instances(host_info: HostInfo, val: str) -> JobInstances:
+    return job.dto_to_job_instances(host_info.host, json.loads(val))

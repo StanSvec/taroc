@@ -1,7 +1,7 @@
 import asyncio
-import itertools
 from collections import namedtuple
 
+import itertools
 from rich.live import Live
 
 import taroc
@@ -38,7 +38,7 @@ async def run_ps(group_to_hosts):
     with Live(jobs_view) as live_view:
         for next_done in asyncio.as_completed(host_to_task.values()):
             response = await next_done
-            rows = [_to_job_row(response.host, job) for job in response.body_obj]
+            rows = [_to_job_row(response.host, job) for job in response.resp_obj]
             jobs_view.add_host_rows(response.host, rows)
             live_view.refresh()
 

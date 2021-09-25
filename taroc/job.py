@@ -92,6 +92,22 @@ class JobInstance:
     execution_error: Optional[ExecutionError]
 
 
+class JobInstances(list):
+
+    def __init__(self, *jobs):
+        list.__init__(self, *jobs)
+
+    def __add__(self, jobs):
+        return JobInstances(list.__add__(self, jobs))
+
+    def __getitem__(self, item):
+        result = list.__getitem__(self, item)
+        try:
+            return JobInstances(result)
+        except TypeError:
+            return result
+
+
 def dto_to_job_instance(host, dct) -> JobInstance:
     lc = dct['lifecycle']
     exec_error = ExecutionError(dct['exec_error']) if dct['exec_error'] is not None else None
@@ -108,6 +124,10 @@ def dto_to_job_instance(host, dct) -> JobInstance:
                        dct['status'],
                        dct['warnings'],
                        exec_error)
+
+
+def dto_to_job_instances(host, dct) -> JobInstances:
+    return JobInstances([dto_to_job_instance(host, job_dct) for job_dct in dct['jobs']])
 
 
 def _dto_to_state_changes(lifecycle):
