@@ -50,7 +50,7 @@ async def _exec(host_info: HostInfo, command: str, resp_deser: Callable[[str], T
         result = await conn.run(f"python3 -m taroapp {command}", check=True, timeout=cfg.ssh_run_timeout)
 
     result_str = result.stdout
-    resp_body: T = resp_deser(result_str)
+    resp_body: T = resp_deser(host_info, result_str)
     return Response(host_info.host, True, resp_body)
 
 
@@ -58,5 +58,5 @@ def ps(*hosts: HostInfo) -> dict[HostInfo, Awaitable[Response[List[JobInstance]]
     return create_tasks('ps -f json', _str_to_job_instances, *hosts)
 
 
-def _str_to_job_instances(val: str) -> List[JobInstance]:
-    return [job.dto_to_job_instance(as_dict) for as_dict in json.loads(val)]
+def _str_to_job_instances(host_info: HostInfo, val: str) -> List[JobInstance]:
+    return [job.dto_to_job_instance(host_info.host, as_dict) for as_dict in json.loads(val)]
