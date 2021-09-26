@@ -1,6 +1,10 @@
+from dataclasses import dataclass
+from enum import Enum
+from typing import Callable
+
 from rich import box
 from rich.columns import Columns
-from rich.console import Group
+from rich.console import Group, RenderableType
 from rich.padding import Padding
 from rich.text import Text
 from rich.panel import Panel
@@ -8,11 +12,28 @@ from rich.progress import Progress, BarColumn, TimeRemainingColumn, TimeElapsedC
 from rich.spinner import Spinner
 from rich.table import Table
 
+from taroc import JobInstance
+
+
+@dataclass(frozen=True)
+class JobColumn:
+    name: str
+    job_to_render: Callable[[JobInstance], RenderableType]
+
+
+def job_field(field_name):
+    return lambda job: getattr(job, field_name)
+
+
+class JobColumns:
+
+    HOST = JobColumn('Host', job_field('host'))
+
 
 def _init_table(columns):
     table = Table(box=box.SIMPLE)
     for column in columns:
-        table.add_column(column)
+        table.add_column(column.name)
     table.columns[-1].justify = 'full'
     return table
 
