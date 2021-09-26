@@ -1,33 +1,35 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Callable
+from typing import Callable, Any
 
 from rich import box
 from rich.columns import Columns
 from rich.console import Group, RenderableType
 from rich.padding import Padding
-from rich.text import Text
 from rich.panel import Panel
-from rich.progress import Progress, BarColumn, TimeRemainingColumn, TimeElapsedColumn, SpinnerColumn
+from rich.progress import Progress, BarColumn, TimeElapsedColumn
 from rich.spinner import Spinner
 from rich.table import Table
+from rich.text import Text
 
-from taroc import JobInstance
+from taroc import JobInstance, util
 
 
 @dataclass(frozen=True)
 class JobColumn:
     name: str
-    job_to_render: Callable[[JobInstance], RenderableType]
-
-
-def job_field(field_name):
-    return lambda job: getattr(job, field_name)
+    job_to_column_val: Callable[[JobInstance], Any]
+    val_to_render: Callable[[Any], RenderableType] = lambda val: str(val)
 
 
 class JobColumns:
-
-    HOST = JobColumn('Host', job_field('host'))
+    HOST = JobColumn('Host', lambda job: job.host)
+    JOB_ID = JobColumn('Job ID', lambda job: job.job_id)
+    INSTANCE_ID = JobColumn('Instance ID', lambda job: job.instance_id)
+    CREATED = JobColumn('Created', lambda job: job.created, util.dt_to_iso_str)
+    TIME = JobColumn('Execution Time', lambda job: job.execution_time, util.format_timedelta)
+    STATE = JobColumn('State', lambda job: job.state, lambda state: state.name)
+    WARNINGS = JobColumn('Warnings', lambda job: job.warnings)
+    STATUS = JobColumn('Status', lambda job: job.status)
 
 
 def _init_table(columns):
@@ -38,29 +40,28 @@ def _init_table(columns):
     return table
 
 
-class JobsView:
+class JobInstancesView:
 
-    def __init__(self, *, hosts_count, columns):
-        self._status_panel = StatusPanel(hosts_count)
+    def __init__(self, columns, model):
+        self._columns = columns
+        self._model = model
+        self._status_panel = StatusPanel(model)
         self._table = _init_table(columns)
         self._spinner = Spinner('simpleDotsScrolling', "[bold green]Fetching jobs...")
-        self._hosts_count = hosts_count
         self._hosts_completed = 0
 
-    def add_host_rows(self, host, rows):
-        self._hosts_completed += 1
-        self._status_panel.completed(len(rows))
-        for row in rows:
-            self._table.add_row(*row)
-
-    def is_completed(self):
-        return self._hosts_completed == self._hosts_count
+    def _sync_rows(self):
+        new_jobs = self._model.job_instances[len(self._table.rows):]
+        for job in new_jobs:
+            self._table.add_row(*(c.val_to_render(c.job_to_column_val(job)) for c in self._columns))
 
     def __rich__(self):
+        self._sync_rows()
+
         renders = [self._status_panel]
         if len(self._table.rows) > 0:
             renders.append(self._table)
-        if not self.is_completed():
+        if not self._model.is_completed():
             renders.append(self._spinner)
 
         return Group(*renders)
@@ -68,24 +69,28 @@ class JobsView:
 
 class StatusPanel:
 
-    def __init__(self, hosts_count):
-        self.instance_count = SingleValue('Instances', 0, 5)
-        self.progress_bar = Progress(
+    def __init__(self, model):
+        self._model = model
+        self._instance_count = SingleValue('Instances', lambda: len(model.job_instances), 5)
+        self._progress_bar = Progress(
             "[progress.description]{task.description}",
             BarColumn(),
             "[progress.status]{task.completed}/{task.total}",
             TimeElapsedColumn())
-        self.task = self.progress_bar.add_task('[#ffc107]Hosts[/]', total=hosts_count)
-        columns = Columns([Padding(self.progress_bar, (0, 3, 0, 0)),
-                           self.instance_count,
-                           Text(f"Total: {hosts_count}", style="#ffc107")])
+        self._task_id = self._progress_bar.add_task('[#ffc107]Hosts[/]', total=model.host_count)
+        columns = Columns([Padding(self._progress_bar, (0, 3, 0, 0)),
+                           self._instance_count,
+                           Text(f"Total: {model.host_count}", style="#ffc107")])
         self.panel = Panel(columns, title="[#009688]Status[/]", style='#009688')
 
-    def completed(self, instance_count):
-        self.progress_bar.update(self.task, advance=1)
-        self.instance_count.value += instance_count
+    def _sync_progress(self):
+        task = next(task for task in self._progress_bar.tasks if task.id == self._task_id)
+        new_completed = self._model.host_completed_count - task.completed
+        self._progress_bar.update(self._task_id, advance=new_completed)
 
     def __rich__(self):
+        self._sync_progress()
+
         return self.panel
 
 
@@ -97,4 +102,4 @@ class SingleValue:
         self.right_padding = right_padding
 
     def __rich__(self):
-        return Text(f"{self.name}: {self.value:<{self.right_padding}}", style="#ffc107")
+        return Text(f"{self.name}: {self.value():<{self.right_padding}}", style="#ffc107")

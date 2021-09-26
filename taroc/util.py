@@ -61,6 +61,13 @@ def dt_from_utc_str(str_ts, is_iso=True) -> Optional[datetime]:
     return datetime.strptime(str_ts, "%Y-%m-%d" + sep + "%H:%M:%S.%f%z")
 
 
+def dt_to_iso_str(dt, default_val="N/A"):
+    if not dt:
+        return default_val
+
+    return dt.astimezone().replace(tzinfo=None).isoformat(sep=' ', timespec='milliseconds')
+
+
 def format_timedelta(td):
     mm, ss = divmod(td.seconds, 60)
     hh, mm = divmod(mm, 60)
