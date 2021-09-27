@@ -1,5 +1,6 @@
 import asyncio
 import json
+import socket
 from dataclasses import dataclass
 from typing import TypeVar, Callable, Generic, Awaitable, Optional
 
@@ -48,7 +49,7 @@ async def _exec(host_info: HostInfo, command: str, resp_deser: Callable[[HostInf
     conn_task = asyncssh.connect(host_info.host, login_timeout=cfg.ssh_con_timeout)
     try:
         conn = await asyncio.wait_for(conn_task, cfg.ssh_con_timeout)
-    except asyncio.TimeoutError as e:
+    except (asyncio.TimeoutError, socket.gaierror) as e:
         return Response.error(host_info.host, e)
 
     async with conn:
