@@ -37,4 +37,4 @@ class JobInstancesModel:
         self._host_error[host] = error
 
     def is_completed(self):
-        return self._host_count == self._host_successful_count
+        return self._host_count == self.host_completed_count
