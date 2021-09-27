@@ -71,7 +71,6 @@ class StatusPanel:
 
     def __init__(self, model):
         self._model = model
-        self._instance_count = SingleValue('Instances', lambda: len(model.job_instances), 5)
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
             BarColumn(),
@@ -79,14 +78,17 @@ class StatusPanel:
             TimeElapsedColumn())
         self._task_id = self._progress_bar.add_task('[#ffc107]Hosts[/]', total=model.host_count)
         columns = Columns([Padding(self._progress_bar, (0, 3, 0, 0)),
-                           self._instance_count,
-                           Text(f"Total: {model.host_count}", style="#ffc107")])
+                           SingleValue('Successful', lambda: model.host_successful_count, 4),
+                           SingleValue('Failed', lambda: len(model.host_error), 4),
+                           SingleValue('Instances', lambda: len(model.job_instances), 4)])
         self.panel = Panel(columns, title="[#009688]Status[/]", style='#009688')
 
     def _sync_progress(self):
-        task = next(task for task in self._progress_bar.tasks if task.id == self._task_id)
-        new_completed = self._model.host_completed_count - task.completed
+        new_completed = self._model.host_completed_count - self._find_task().completed
         self._progress_bar.update(self._task_id, advance=new_completed)
+
+    def _find_task(self):
+        return next(task for task in self._progress_bar.tasks if task.id == self._task_id)
 
     def __rich__(self):
         self._sync_progress()

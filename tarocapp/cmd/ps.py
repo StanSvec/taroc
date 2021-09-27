@@ -35,4 +35,7 @@ async def run_ps(group_to_hosts):
     with Live(jobs_view):
         for next_done in asyncio.as_completed(host_to_task.values()):
             response = await next_done
-            jobs_model.add_host_jobs(response.host, response.resp_obj)
+            if response.success:
+                jobs_model.add_host_jobs(response.host, response.resp_obj)
+            else:
+                jobs_model.add_host_error(response.host, response.error)
