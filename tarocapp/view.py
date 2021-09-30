@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Callable, Any
 
 from rich import box
-from rich.columns import Columns
 from rich.console import Group, RenderableType
 from rich.padding import Padding
 from rich.panel import Panel
@@ -74,6 +73,15 @@ class JobInstancesView:
 class StatusPanel:
 
     def __init__(self, model):
+        self._hosts_panel = HostsPanel(model)
+
+    def __rich__(self):
+        return self._hosts_panel.__rich__()
+
+
+class HostsPanel:
+
+    def __init__(self, model):
         self._model = model
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
@@ -81,11 +89,15 @@ class StatusPanel:
             "[progress.status]{task.completed}/{task.total}",
             TimeElapsedColumn())
         self._task_id = self._progress_bar.add_task('[#ffc107]Hosts[/]', total=model.host_count)
-        columns = Columns([Padding(self._progress_bar, (0, 3, 0, 0)),
-                           SingleValue('Successful', lambda: model.host_successful_count, 4),
-                           SingleValue('Failed', lambda: len(model.host_error), 4),
-                           SingleValue('Instances', lambda: len(model.job_instances), 4)])
-        self.panel = Panel(columns, title="[#009688]Status[/]", style='#009688')
+
+        grid = Table.grid()
+        row = [Padding(self._progress_bar, (0, 3, 0, 0)),
+               SingleValue('Successful', lambda: model.host_successful_count, 4),
+               SingleValue('Failed', lambda: len(model.host_error), 4),
+               SingleValue('Instances', lambda: len(model.job_instances), 4)]
+        grid.add_row(*row)
+
+        self.panel = Panel(grid, title="[#009688]Status[/]", style='#009688')
 
     def _sync_progress(self):
         new_completed = self._model.host_completed_count - self._find_task().completed
