@@ -107,6 +107,9 @@ class JobInstances(list):
         except TypeError:
             return result
 
+    def warning_instances(self):
+        return [job for job in self if job.warnings]
+
 
 def dto_to_job_instance(host, dct) -> JobInstance:
     lc = dct['lifecycle']

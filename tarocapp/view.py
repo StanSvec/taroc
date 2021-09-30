@@ -122,7 +122,7 @@ class JobsPanel:
         grid = Table.grid()
         grid.add_row(
             SingleValue('Instances', lambda: len(model.job_instances), 4),
-            SingleValue('Warning', lambda: len(model.warning_instances), 4)
+            SingleValue('Warning', lambda: len(model.job_instances.warning_instances()), 4)
         )
 
         self.panel = Panel(grid, title="[#009688]Jobs[/]", style='#009688')

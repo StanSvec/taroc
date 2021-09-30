@@ -29,10 +29,6 @@ class JobInstancesModel:
     def job_instances(self) -> JobInstances:
         return JobInstances(self._job_instances)
 
-    @property
-    def warning_instances(self) -> JobInstances:
-        return JobInstances((job for job in self._job_instances if job.warnings))
-
     def add_host_jobs(self, host, jobs):
         self._host_successful_count += 1
         self._job_instances += jobs
