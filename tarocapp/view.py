@@ -18,7 +18,11 @@ from taroc import JobInstance, util
 class JobColumn:
     name: str
     job_to_column_val: Callable[[JobInstance], Any]
-    val_to_render: Callable[[Any], RenderableType] = lambda val: str(val)
+    val_to_render: Callable[[Any], RenderableType] = lambda val: str(val) if val is not None else ''
+
+
+def _print_dict(dct):
+    return ','.join(f"{k}:{v}" for k, v in dct)
 
 
 class JobColumns:
@@ -28,7 +32,7 @@ class JobColumns:
     CREATED = JobColumn('Created', lambda job: job.created, util.dt_to_iso_str)
     TIME = JobColumn('Execution Time', lambda job: job.execution_time, util.format_timedelta)
     STATE = JobColumn('State', lambda job: job.state, lambda state: state.name)
-    WARNINGS = JobColumn('Warnings', lambda job: job.warnings)
+    WARNINGS = JobColumn('Warnings', lambda job: job.warnings, _print_dict)
     STATUS = JobColumn('Status', lambda job: job.status)
 
 
