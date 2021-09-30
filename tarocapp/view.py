@@ -90,13 +90,16 @@ class HostsPanel:
             "[progress.description]{task.description}",
             BarColumn(),
             "[progress.status]{task.completed}/{task.total}",
-            TimeElapsedColumn())
+            TimeElapsedColumn()
+        )
         self._task_id = self._progress_bar.add_task('[#ffc107]Hosts[/]', total=model.host_count)
 
         grid = Table.grid()
-        grid.add_row(Padding(self._progress_bar, (0, 3, 0, 0)),
-                     SingleValue('Successful', lambda: model.host_successful_count, 4),
-                     SingleValue('Failed', lambda: len(model.host_error), 4))
+        grid.add_row(
+            Padding(self._progress_bar, (0, 3, 0, 0)),
+            SingleValue('Successful', lambda: model.host_successful_count, 4),
+            SingleValue('Failed', lambda: len(model.host_to_error), 4),
+        )
         self._panel = Panel(grid, title="[#009688]Hosts[/]", style='#009688')
 
     def _sync_progress(self):
@@ -117,8 +120,10 @@ class JobsPanel:
         self._model = model
 
         grid = Table.grid()
-        row = [SingleValue('Instances', lambda: len(model.job_instances), 4)]
-        grid.add_row(*row)
+        grid.add_row(
+            SingleValue('Instances', lambda: len(model.job_instances), 4),
+            SingleValue('Warning', lambda: len(model.warning_instances), 4)
+        )
 
         self.panel = Panel(grid, title="[#009688]Jobs[/]", style='#009688')
 

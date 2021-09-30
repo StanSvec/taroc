@@ -22,12 +22,16 @@ class JobInstancesModel:
         return self._host_successful_count + len(self._host_error)
 
     @property
+    def host_to_error(self):
+        return dict(self._host_error)
+
+    @property
     def job_instances(self) -> JobInstances:
         return JobInstances(self._job_instances)
 
     @property
-    def host_error(self):
-        return dict(self._host_error)
+    def warning_instances(self) -> JobInstances:
+        return JobInstances((job for job in self._job_instances if job.warnings))
 
     def add_host_jobs(self, host, jobs):
         self._host_successful_count += 1
