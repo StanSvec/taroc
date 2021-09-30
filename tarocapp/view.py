@@ -73,10 +73,13 @@ class JobInstancesView:
 class StatusPanel:
 
     def __init__(self, model):
-        self._hosts_panel = HostsPanel(model)
+        self._grid = Table.grid(expand=True)
+        self._grid.add_column(ratio=1)
+        self._grid.add_column(ratio=1)
+        self._grid.add_row(HostsPanel(model), JobsPanel(model))
 
     def __rich__(self):
-        return self._hosts_panel.__rich__()
+        return self._grid
 
 
 class HostsPanel:
@@ -91,13 +94,10 @@ class HostsPanel:
         self._task_id = self._progress_bar.add_task('[#ffc107]Hosts[/]', total=model.host_count)
 
         grid = Table.grid()
-        row = [Padding(self._progress_bar, (0, 3, 0, 0)),
-               SingleValue('Successful', lambda: model.host_successful_count, 4),
-               SingleValue('Failed', lambda: len(model.host_error), 4),
-               SingleValue('Instances', lambda: len(model.job_instances), 4)]
-        grid.add_row(*row)
-
-        self.panel = Panel(grid, title="[#009688]Status[/]", style='#009688')
+        grid.add_row(Padding(self._progress_bar, (0, 3, 0, 0)),
+                     SingleValue('Successful', lambda: model.host_successful_count, 4),
+                     SingleValue('Failed', lambda: len(model.host_error), 4))
+        self._panel = Panel(grid, title="[#009688]Hosts[/]", style='#009688')
 
     def _sync_progress(self):
         new_completed = self._model.host_completed_count - self._find_task().completed
@@ -108,7 +108,21 @@ class HostsPanel:
 
     def __rich__(self):
         self._sync_progress()
+        return self._panel
 
+
+class JobsPanel:
+
+    def __init__(self, model):
+        self._model = model
+
+        grid = Table.grid()
+        row = [SingleValue('Instances', lambda: len(model.job_instances), 4)]
+        grid.add_row(*row)
+
+        self.panel = Panel(grid, title="[#009688]Jobs[/]", style='#009688')
+
+    def __rich__(self):
         return self.panel
 
 
