@@ -92,7 +92,7 @@ class HostsPanel:
             "[progress.status]{task.completed}/{task.total}",
             TimeElapsedColumn()
         )
-        self._task_id = self._progress_bar.add_task('[#ffc107]Hosts[/]', total=model.host_count)
+        self._task_id = self._progress_bar.add_task('[#ffc107]Connected[/]', total=model.host_count)
 
         grid = Table.grid()
         grid.add_row(
