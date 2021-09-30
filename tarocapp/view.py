@@ -120,9 +120,13 @@ class JobsPanel:
         self._model = model
 
         grid = Table.grid()
+        grid.add_column()
+        grid.add_column()
+        grid.add_column(justify="right")
         grid.add_row(
             SingleValue('Instances', lambda: len(model.job_instances), 4),
-            SingleValue('Warning', lambda: len(model.job_instances.warning_instances()), 4)
+            SingleValue('Warning', lambda: len(model.job_instances.warning_instances()), 4),
+            StateToCount(model),
         )
 
         self.panel = Panel(grid, title="[#009688]Jobs[/]", style='#009688')
@@ -140,3 +144,13 @@ class SingleValue:
 
     def __rich__(self):
         return Text(f"{self.name}: {self.value():<{self.right_padding}}", style="#ffc107")
+
+
+class StateToCount:
+
+    def __init__(self, model):
+        self._model = model
+
+    def __rich__(self):
+        return " | ".join(
+            f"{state.name}: {len(jobs)}" for state, jobs in self._model.job_instances.state_to_instances().items())

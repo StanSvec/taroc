@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum, auto
@@ -109,6 +110,12 @@ class JobInstances(list):
 
     def warning_instances(self):
         return [job for job in self if job.warnings]
+
+    def state_to_instances(self):
+        state_to_instances = defaultdict(list)
+        for job in self:
+            state_to_instances[job.state].append(job)
+        return state_to_instances
 
 
 def dto_to_job_instance(host, dct) -> JobInstance:
