@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Any
 
 from rich import box
@@ -7,7 +7,7 @@ from rich.padding import Padding
 from rich.panel import Panel
 from rich.progress import Progress, BarColumn, TimeElapsedColumn
 from rich.spinner import Spinner
-from rich.table import Table
+from rich.table import Table, Column
 from rich.text import Text
 
 from taroc import JobInstance, util
@@ -18,6 +18,10 @@ class JobColumn:
     name: str
     job_to_column_val: Callable[[JobInstance], Any]
     val_to_render: Callable[[Any], RenderableType] = lambda val: str(val) if val is not None else ''
+    column: Column = field(default_factory=Column)
+
+    def __rich__(self):
+        return self.name
 
 
 def _print_dict(dct):
@@ -50,8 +54,8 @@ class JobInstancesView:
         self._model = model
         self._status_panel = StatusPanel(model)
         self._table = _init_table(columns)
+        self._host_errors = HostErrors(model)
         self._spinner = Spinner('simpleDotsScrolling', "[bold green]Fetching jobs...")
-        self._hosts_completed = 0
 
     def _sync_rows(self):
         new_jobs = self._model.job_instances[len(self._table.rows):]
@@ -62,8 +66,10 @@ class JobInstancesView:
         self._sync_rows()
 
         renders = [self._status_panel]
-        if len(self._table.rows) > 0:
+        if len(self._model.job_instances) > 0:
             renders.append(self._table)
+        if len(self._model.host_errors) > 0:
+            renders.append(self._host_errors)
         if not self._model.is_completed():
             renders.append(self._spinner)
 
@@ -98,7 +104,7 @@ class HostsPanel:
         grid.add_row(
             Padding(self._progress_bar, (0, 3, 0, 0)),
             SingleValue('Successful', lambda: model.host_successful_count, 4),
-            SingleValue('Failed', lambda: len(model.host_to_error), 4),
+            SingleValue('Failed', lambda: len(model.host_errors), 4),
         )
         self._panel = Panel(grid, title="[#009688]Hosts[/]", style='#009688')
 
@@ -154,3 +160,20 @@ class StateToCount:
     def __rich__(self):
         return " | ".join(
             f"{state.name}: {len(jobs)}" for state, jobs in self._model.job_instances.state_to_instances().items())
+
+
+class HostErrors:
+
+    def __init__(self, model):
+        self._model = model
+        self._table = Table.grid()
+
+    def _sync_rows(self):
+        new_host_errors = self._model.host_errors[len(self._table.rows):]
+        for host, err in new_host_errors:
+            self._table.add_row(f"{host}: [red]{type(err).__name__} {err}[/]")
+
+    def __rich__(self):
+        self._sync_rows()
+
+        return self._table

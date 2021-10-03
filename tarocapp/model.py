@@ -7,7 +7,7 @@ class JobInstancesModel:
         self._host_count = host_count
         self._host_successful_count = 0
         self._job_instances = JobInstances()
-        self._host_error = dict()
+        self._host_error = []
 
     @property
     def host_count(self) -> int:
@@ -22,8 +22,8 @@ class JobInstancesModel:
         return self._host_successful_count + len(self._host_error)
 
     @property
-    def host_to_error(self):
-        return dict(self._host_error)
+    def host_errors(self):
+        return list(self._host_error)
 
     @property
     def job_instances(self) -> JobInstances:
@@ -34,7 +34,7 @@ class JobInstancesModel:
         self._job_instances += jobs
 
     def add_host_error(self, host, error):
-        self._host_error[host] = error
+        self._host_error.append((host, error))
 
     def is_completed(self):
         return self._host_count == self.host_completed_count
