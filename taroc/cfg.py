@@ -9,7 +9,7 @@ import sys
 
 # ------------ DEFAULT VALUES ------------ #
 DEF_SSH_CONFIG_ENABLED = False
-DEF_SSH_CON_TIMEOUT = 10
+DEF_SSH_CON_TIMEOUT = 5
 DEF_SSH_RUN_TIMEOUT = 5
 
 # ------------ CONFIG VALUES ------------ #
