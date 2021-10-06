@@ -1,10 +1,12 @@
 import abc
 from dataclasses import dataclass
+from functools import wraps
 
 from taroc import JobInstances
 
 
 def updates(func):
+    @wraps(func)
     def notify_observers(model, *args, **kwargs):
         cur_instances = model.job_instances
         res = func(model, *args, **kwargs)
