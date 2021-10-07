@@ -71,8 +71,8 @@ class ModelUpdateEvent:
     new_instances: JobInstances
 
 
-class ExecutionStateObserver(abc.ABC):
+class JobInstancesModelObserver(abc.ABC):
 
     @abc.abstractmethod
     def model_update(self, model: JobInstancesModel, event: ModelUpdateEvent):
-        """This method is called when job instance execution state is changed."""
+        """This method is called when there is an update to job instance model data."""
