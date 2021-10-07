@@ -11,6 +11,7 @@ from rich.table import Table, Column
 from rich.text import Text
 
 from taroc import JobInstance, util
+from tarocapp.model import JobInstancesModelObserver, JobInstancesModel, ModelUpdateEvent
 
 
 @dataclass(frozen=True)
@@ -47,7 +48,7 @@ def _init_table(columns):
     return table
 
 
-class JobInstancesView:
+class JobInstancesView(JobInstancesModelObserver):
 
     def __init__(self, columns, model):
         self._columns = columns
@@ -57,14 +58,11 @@ class JobInstancesView:
         self._host_errors = HostErrors(model)
         self._spinner = Spinner('simpleDotsScrolling', "[bold green]Fetching jobs...")
 
-    def _sync_rows(self):
-        new_jobs = self._model.job_instances[len(self._table.rows):]
-        for job in new_jobs:
+    def model_update(self, model: JobInstancesModel, event: ModelUpdateEvent):
+        for job in event.new_instances:
             self._table.add_row(*(c.val_to_render(c.job_to_column_val(job)) for c in self._columns))
 
     def __rich__(self):
-        self._sync_rows()
-
         renders = [self._status_panel]
         if len(self._model.job_instances) > 0:
             renders.append(self._table)

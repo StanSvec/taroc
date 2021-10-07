@@ -32,6 +32,7 @@ async def run_ps(group_to_hosts):
     host_to_task = taroc.ps(*all_hosts)
     jobs_model = JobInstancesModel(len(host_to_task))
     jobs_view = JobInstancesView(COLUMNS, jobs_model)
+    jobs_model.observers.append(jobs_view)
     with Live(jobs_view):
         for next_done in asyncio.as_completed(host_to_task.values()):
             response = await next_done
