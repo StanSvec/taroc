@@ -10,7 +10,7 @@ from rich.spinner import Spinner
 from rich.table import Table, Column
 from rich.text import Text
 
-from taroc import JobInstance, util
+from taroc import JobInstance, util, theme
 from tarocapp.model import JobInstancesModelObserver, JobInstancesModel, ModelUpdateEvent
 
 
@@ -96,15 +96,16 @@ class HostsPanel:
             "[progress.status]{task.completed}/{task.total}",
             TimeElapsedColumn()
         )
-        self._task_id = self._progress_bar.add_task('[#ffc107]Connected[/]', total=model.host_count)
+        self._task_id = self._progress_bar.add_task(f'[{theme.hosts_panel_names}]Connected[/]', total=model.host_count)
 
         grid = Table.grid()
         grid.add_row(
             Padding(self._progress_bar, (0, 3, 0, 0)),
-            SingleValue('Successful', lambda: model.host_successful_count, 4),
-            SingleValue('Failed', lambda: len(model.host_errors), 4),
+            SingleValue('Successful', lambda: model.host_successful_count, theme.hosts_panel_names,
+                        theme.hosts_panel_values, 4),
+            SingleValue('Failed', lambda: len(model.host_errors), theme.hosts_panel_names, theme.hosts_panel_values, 4),
         )
-        self._panel = Panel(grid, title="[#009688]Hosts[/]", style='#009688')
+        self._panel = Panel(grid, title=f"[{theme.hosts_panel_title}]Hosts[/]", style=theme.hosts_panel_border)
 
     def _sync_progress(self):
         new_completed = self._model.host_completed_count - self._find_task().completed
@@ -128,12 +129,14 @@ class JobsPanel:
         grid.add_column()
         grid.add_column(justify="right")
         grid.add_row(
-            SingleValue('Instances', lambda: len(model.job_instances), 4),
-            SingleValue('Warning', lambda: len(model.job_instances.warning_instances()), 4),
+            SingleValue('Instances', lambda: len(model.job_instances), theme.jobs_panel_names, theme.jobs_panel_values,
+                        4),
+            SingleValue('Warning', lambda: len(model.job_instances.warning_instances()), theme.jobs_panel_names,
+                        theme.jobs_panel_values, 4),
             StateToCount(model),
         )
 
-        self.panel = Panel(grid, title="[#009688]Jobs[/]", style='#009688')
+        self.panel = Panel(grid, title=f"[{theme.jobs_panel_title}]Jobs[/]", style=theme.jobs_panel_border)
 
     def __rich__(self):
         return self.panel
@@ -141,13 +144,18 @@ class JobsPanel:
 
 class SingleValue:
 
-    def __init__(self, name, value, right_padding):
+    def __init__(self, name, value, style_name, style_value, right_padding):
         self.name = name
         self.value = value
+        self.style_name = style_name
+        self.style_value = style_value
         self.right_padding = right_padding
 
     def __rich__(self):
-        return Text(f"{self.name}: {self.value():<{self.right_padding}}", style="#ffc107")
+        t = Text()
+        t.append(f"{self.name}: ", style=self.style_name)
+        t.append(f"{self.value():<{self.right_padding}}", style=self.style_value)
+        return t
 
 
 class StateToCount:
@@ -157,7 +165,8 @@ class StateToCount:
 
     def __rich__(self):
         return " | ".join(
-            f"{state.name}: {len(jobs)}" for state, jobs in self._model.job_instances.state_to_instances().items())
+            f"[white]{state.name}: {len(jobs)}[/]" for state, jobs in
+            self._model.job_instances.state_to_instances().items())
 
 
 class HostErrors:
