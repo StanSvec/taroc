@@ -1,11 +1,13 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import Callable, Any
 
 from rich import box
 from rich.console import Group, RenderableType
 from rich.padding import Padding
 from rich.panel import Panel
-from rich.progress import Progress, BarColumn, TimeElapsedColumn
+from rich.progress import Progress, BarColumn, ProgressColumn, Task
 from rich.spinner import Spinner
 from rich.table import Table, Column
 from rich.text import Text
@@ -56,7 +58,7 @@ class JobInstancesView(JobInstancesModelObserver):
         self._status_panel = StatusPanel(model)
         self._table = _init_table(columns)
         self._host_errors = HostErrors(model)
-        self._spinner = Spinner('simpleDotsScrolling', "[bold green]Fetching jobs...")
+        self._spinner = Spinner('simpleDotsScrolling', f"[{theme.spinner}]Fetching jobs...", style=theme.spinner)
 
     def model_update(self, model: JobInstancesModel, event: ModelUpdateEvent):
         for job in event.new_instances:
@@ -93,17 +95,17 @@ class HostsPanel:
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
             BarColumn(),
-            "[progress.status]{task.completed}/{task.total}",
-            TimeElapsedColumn()
+            f"[{theme.progress_status}]" + "{task.completed}/{task.total}",
+            CustomTimeElapsedColumn()
         )
-        self._task_id = self._progress_bar.add_task(f'[{theme.hosts_panel_names}]Connected[/]', total=model.host_count)
+        self._task_id = self._progress_bar.add_task(f"[{theme.hosts_panel_successful_name}]Connected[/]",
+                                                    total=model.host_count)
 
         grid = Table.grid()
         grid.add_row(
             Padding(self._progress_bar, (0, 3, 0, 0)),
-            SingleValue('Successful', lambda: model.host_successful_count, theme.hosts_panel_names,
-                        theme.hosts_panel_values, 4),
-            SingleValue('Failed', lambda: len(model.host_errors), theme.hosts_panel_names, theme.hosts_panel_values, 4),
+            HostsSuccessful('Successful', 4, model),
+            HostsFailed('Failed', 4, model),
         )
         self._panel = Panel(grid, title=f"[{theme.hosts_panel_title}]Hosts[/]", style=theme.hosts_panel_border)
 
@@ -129,10 +131,8 @@ class JobsPanel:
         grid.add_column()
         grid.add_column(justify="right")
         grid.add_row(
-            SingleValue('Instances', lambda: len(model.job_instances), theme.jobs_panel_names, theme.jobs_panel_values,
-                        4),
-            SingleValue('Warning', lambda: len(model.job_instances.warning_instances()), theme.jobs_panel_names,
-                        theme.jobs_panel_values, 4),
+            Instances('Instances', 4, model),
+            WarningVal('Warning', 4, model),
             StateToCount(model),
         )
 
@@ -142,20 +142,85 @@ class JobsPanel:
         return self.panel
 
 
-class SingleValue:
+class SingleValue(ABC):
 
-    def __init__(self, name, value, style_name, style_value, right_padding):
+    def __init__(self, name, right_padding):
         self.name = name
-        self.value = value
-        self.style_name = style_name
-        self.style_value = style_value
         self.right_padding = right_padding
 
+    @abstractmethod
+    def value(self):
+        """Return value to be displayed"""
+
+    @abstractmethod
+    def styles(self):
+        """Return styles to be applied in form of ($name_style, $value_style)"""
+
     def __rich__(self):
+        style_name, style_value = self.styles()
+
         t = Text()
-        t.append(f"{self.name}: ", style=self.style_name)
-        t.append(f"{self.value():<{self.right_padding}}", style=self.style_value)
+        t.append(f"{self.name}: ", style=style_name)
+        t.append(f"{self.value():<{self.right_padding}}", style=style_value)
         return t
+
+
+class HostsSuccessful(SingleValue):
+
+    def __init__(self, name, right_padding, model):
+        super().__init__(name, right_padding)
+        self.model = model
+
+    def value(self):
+        return self.model.host_successful_count
+
+    def styles(self):
+        return theme.hosts_panel_successful_name, theme.hosts_panel_successful_value
+
+
+class HostsFailed(SingleValue):
+
+    def __init__(self, name, right_padding, model):
+        super().__init__(name, right_padding)
+        self.model = model
+
+    def value(self):
+        return len(self.model.host_errors)
+
+    def styles(self):
+        if self.value() == 0:
+            return theme.hosts_panel_failed_name, theme.hosts_panel_failed_value
+        else:
+            return theme.hosts_panel_failed_positive_name, theme.hosts_panel_failed_positive_value
+
+
+class Instances(SingleValue):
+
+    def __init__(self, name, right_padding, model):
+        super().__init__(name, right_padding)
+        self.model = model
+
+    def value(self):
+        return len(self.model.job_instances)
+
+    def styles(self):
+        return theme.jobs_panel_instances_name, theme.jobs_panel_instances_value
+
+
+class WarningVal(SingleValue):
+
+    def __init__(self, name, right_padding, model):
+        super().__init__(name, right_padding)
+        self.model = model
+
+    def value(self):
+        return len(self.model.job_instances.warning_instances())
+
+    def styles(self):
+        if self.value() == 0:
+            return theme.jobs_panel_warning_name, theme.jobs_panel_warning_value
+        else:
+            return theme.jobs_panel_warning_positive_name, theme.jobs_panel_warning_positive_value
 
 
 class StateToCount:
@@ -184,3 +249,15 @@ class HostErrors:
         self._sync_rows()
 
         return self._table
+
+
+class CustomTimeElapsedColumn(ProgressColumn):
+    """Renders time elapsed."""
+
+    def render(self, task: "Task") -> Text:
+        """Show time remaining."""
+        elapsed = task.finished_time if task.finished else task.elapsed
+        if elapsed is None:
+            return Text("-:--:--", style="white")
+        delta = timedelta(seconds=int(elapsed))
+        return Text(str(delta), style="white")
