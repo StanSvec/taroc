@@ -42,3 +42,17 @@ jobs_panel_warning_name = DEF_GREYED_OUT
 jobs_panel_warning_value = DEF_GREYED_OUT
 jobs_panel_warning_positive_name = DEF_WARNING
 jobs_panel_warning_positive_value = DEF_WARNING
+
+
+def hosts_panel_failed(failed_count):
+    if failed_count:
+        return hosts_panel_failed_positive_name, hosts_panel_failed_positive_value
+    else:
+        return hosts_panel_failed_name, hosts_panel_failed_value
+
+
+def jobs_panel_warning(warning_count):
+    if warning_count:
+        return jobs_panel_warning_positive_name, jobs_panel_warning_positive_value
+    else:
+        return jobs_panel_warning_name, jobs_panel_warning_value

@@ -188,10 +188,7 @@ class HostsFailed(SingleValue):
         return len(self.model.host_errors)
 
     def styles(self):
-        if self.value() == 0:
-            return theme.hosts_panel_failed_name, theme.hosts_panel_failed_value
-        else:
-            return theme.hosts_panel_failed_positive_name, theme.hosts_panel_failed_positive_value
+        return theme.hosts_panel_failed(self.value())
 
 
 class Instances(SingleValue):
@@ -217,10 +214,7 @@ class WarningVal(SingleValue):
         return len(self.model.job_instances.warning_instances())
 
     def styles(self):
-        if self.value() == 0:
-            return theme.jobs_panel_warning_name, theme.jobs_panel_warning_value
-        else:
-            return theme.jobs_panel_warning_positive_name, theme.jobs_panel_warning_positive_value
+        return theme.jobs_panel_warning(self.value())
 
 
 class StateToCount:
