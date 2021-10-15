@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from datetime import timedelta
-from typing import Callable, Any
+from datetime import timedelta, datetime
 
 from rich import box
 from rich.console import Group, RenderableType
@@ -13,18 +11,54 @@ from rich.table import Table, Column
 from rich.text import Text
 
 from taroc import JobInstance, util, theme
+from taroc.job import ExecutionState
 from tarocapp.model import JobInstancesModelObserver, JobInstancesModel, ModelUpdateEvent
 
 
-@dataclass(frozen=True)
-class JobColumn:
-    name: str
-    job_to_column_val: Callable[[JobInstance], Any]
-    val_to_render: Callable[[Any], RenderableType] = lambda val: str(val) if val is not None else ''
-    column: Column = field(default_factory=Column)
+class JobColumn(ABC):
 
-    def __rich__(self):
-        return self.name
+    def __init__(self, header, none_placeholder=''):
+        self.header = header
+        self.none_renderable = none_placeholder
+        self.column = Column(header=header)
+
+    @abstractmethod
+    def value(self, job_instance: JobInstance):
+        """Return value for the column"""
+
+    def renderable(self, job_instance) -> RenderableType:
+        return self.job_to_str(job_instance)
+
+    def job_to_str(self, job_instance):
+        return self.value_to_str(self.value(job_instance))
+
+    def value_to_str(self, value) -> RenderableType:
+        if value is None:
+            return self.none_renderable
+        if isinstance(value, ExecutionState):
+            return value.name
+        if isinstance(value, datetime):
+            return util.dt_to_iso_str(value)
+        if isinstance(value, timedelta):
+            return util.format_timedelta(value)
+        if isinstance(value, dict):
+            return _print_dict(value)
+
+        return str(value)
+
+
+class StaticJobColumn(JobColumn):
+
+    def __init__(self, header, value_fnc, style='bright_white'):
+        super().__init__(header)
+        self.value_fnc = value_fnc
+        self.style = style
+
+    def value(self, job_instance: JobInstance):
+        return self.value_fnc(job_instance)
+
+    def renderable(self, job_instance):
+        return Text(self.job_to_str(job_instance), style=self.style)
 
 
 def _print_dict(dct):
@@ -32,22 +66,14 @@ def _print_dict(dct):
 
 
 class JobColumns:
-    HOST = JobColumn('Host', lambda job: job.host)
-    JOB_ID = JobColumn('Job ID', lambda job: job.job_id)
-    INSTANCE_ID = JobColumn('Instance ID', lambda job: job.instance_id)
-    CREATED = JobColumn('Created', lambda job: job.created, util.dt_to_iso_str)
-    TIME = JobColumn('Execution Time', lambda job: job.execution_time, util.format_timedelta)
-    STATE = JobColumn('State', lambda job: job.state, lambda state: state.name)
-    WARNINGS = JobColumn('Warnings', lambda job: job.warnings, _print_dict)
-    STATUS = JobColumn('Status', lambda job: job.status)
-
-
-def _init_table(columns):
-    table = Table(box=box.SIMPLE)
-    for column in columns:
-        table.add_column(column.name)
-    table.columns[-1].justify = 'full'
-    return table
+    HOST = StaticJobColumn('Host', lambda job: job.host)
+    JOB_ID = StaticJobColumn('Job ID', lambda job: job.job_id)
+    INSTANCE_ID = StaticJobColumn('Instance ID', lambda job: job.instance_id)
+    CREATED = StaticJobColumn('Created', lambda job: job.created)
+    TIME = StaticJobColumn('Execution Time', lambda job: job.execution_time)
+    STATE = StaticJobColumn('State', lambda job: job.state)
+    WARNINGS = StaticJobColumn('Warnings', lambda job: job.warnings)
+    STATUS = StaticJobColumn('Status', lambda job: job.status)
 
 
 class JobInstancesView(JobInstancesModelObserver):
@@ -56,13 +82,13 @@ class JobInstancesView(JobInstancesModelObserver):
         self._columns = columns
         self._model = model
         self._status_panel = StatusPanel(model)
-        self._table = _init_table(columns)
+        self._table = Table(*[c.column for c in columns], box=box.SIMPLE)
         self._host_errors = HostErrors(model)
         self._spinner = Spinner('simpleDotsScrolling', f"[{theme.spinner}]Fetching jobs...", style=theme.spinner)
 
     def model_update(self, model: JobInstancesModel, event: ModelUpdateEvent):
         for job in event.new_instances:
-            self._table.add_row(*(c.val_to_render(c.job_to_column_val(job)) for c in self._columns))
+            self._table.add_row(*(c.renderable(job) for c in self._columns))
 
     def __rich__(self):
         renders = [self._status_panel]
