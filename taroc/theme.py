@@ -18,6 +18,15 @@ DEF_JOBS_PANEL_BORDER = DEF_PANEL_BORDER
 DEF_JOBS_PANEL_NAMES = DEF_LABEL
 DEF_JOBS_PANEL_VALUES = DEF_VALUE
 
+DEF_JOBS_TABLE_HOST = 'white'
+DEF_JOBS_TABLE_JOB = 'bold white'
+DEF_JOBS_TABLE_INSTANCE = 'bright_black'
+DEF_JOBS_TABLE_CREATED = 'green'
+DEF_JOBS_TABLE_TIME = 'green'
+DEF_JOBS_TABLE_STATE_RUNNING = 'bright_blue'
+DEF_JOBS_TABLE_WARNING = DEF_WARNING
+DEF_JOBS_TABLE_STATUS = 'bright_white'
+
 greyed_out = DEF_GREYED_OUT
 
 spinner = DEF_SPINNER
@@ -42,6 +51,15 @@ jobs_panel_warning_name = DEF_GREYED_OUT
 jobs_panel_warning_value = DEF_GREYED_OUT
 jobs_panel_warning_positive_name = DEF_WARNING
 jobs_panel_warning_positive_value = DEF_WARNING
+
+jobs_table_host = DEF_JOBS_TABLE_HOST
+jobs_table_job = DEF_JOBS_TABLE_JOB
+jobs_table_instance = DEF_JOBS_TABLE_INSTANCE
+jobs_table_created = DEF_JOBS_TABLE_CREATED
+jobs_table_time = DEF_JOBS_TABLE_TIME
+jobs_table_state_running = DEF_JOBS_TABLE_STATE_RUNNING
+jobs_table_warns = DEF_JOBS_TABLE_WARNING
+jobs_table_status = DEF_JOBS_TABLE_STATUS
 
 
 def hosts_panel_failed(failed_count):

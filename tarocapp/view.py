@@ -65,15 +65,31 @@ def _print_dict(dct):
     return ','.join(f"{k}:{v}" for k, v in dct)
 
 
+class StateColumn(JobColumn):
+
+    def __init__(self):
+        super().__init__('State')
+
+    def value(self, job_instance: JobInstance):
+        return job_instance.state
+
+    def renderable(self, job_instance) -> RenderableType:
+        value = self.value(job_instance)
+        style = 'white'
+        if value == ExecutionState.RUNNING:
+            style = theme.jobs_table_state_running
+        return Text(value.name, style=style)
+
+
 class JobColumns:
-    HOST = StaticJobColumn('Host', lambda job: job.host)
-    JOB_ID = StaticJobColumn('Job ID', lambda job: job.job_id)
-    INSTANCE_ID = StaticJobColumn('Instance ID', lambda job: job.instance_id)
-    CREATED = StaticJobColumn('Created', lambda job: job.created)
-    TIME = StaticJobColumn('Execution Time', lambda job: job.execution_time)
-    STATE = StaticJobColumn('State', lambda job: job.state)
-    WARNINGS = StaticJobColumn('Warnings', lambda job: job.warnings)
-    STATUS = StaticJobColumn('Status', lambda job: job.status)
+    HOST = StaticJobColumn('Host', lambda job: job.host, theme.jobs_table_host)
+    JOB_ID = StaticJobColumn('Job ID', lambda job: job.job_id, theme.jobs_table_job)
+    INSTANCE_ID = StaticJobColumn('Instance ID', lambda job: job.instance_id, theme.jobs_table_instance)
+    CREATED = StaticJobColumn('Created', lambda job: job.created, theme.jobs_table_created)
+    TIME = StaticJobColumn('Execution Time', lambda job: job.execution_time, theme.jobs_table_time)
+    STATE = StateColumn()
+    WARNINGS = StaticJobColumn('Warnings', lambda job: job.warnings, theme.jobs_table_warns)
+    STATUS = StaticJobColumn('Status', lambda job: job.status, theme.jobs_table_status)
 
 
 class JobInstancesView(JobInstancesModelObserver):
