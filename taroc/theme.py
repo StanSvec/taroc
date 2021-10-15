@@ -1,7 +1,7 @@
 DEF_VALUE = 'white'
 DEF_LABEL = 'bright_green'
 DEF_GREYED_OUT = 'bright_black'
-DEF_WARNING = 'bright_red'
+DEF_WARNING = 'red'
 DEF_ERROR = 'bright_red'
 DEF_PANEL_BORDER = 'bright_cyan'
 
