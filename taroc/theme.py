@@ -1,3 +1,5 @@
+import sys
+
 DEF_VALUE = 'white'
 DEF_LABEL = 'bright_green'
 DEF_GREYED_OUT = 'bright_black'
@@ -28,6 +30,7 @@ DEF_JOBS_TABLE_WARNING = DEF_WARNING
 DEF_JOBS_TABLE_STATUS = 'bright_white'
 
 greyed_out = DEF_GREYED_OUT
+warning = DEF_WARNING
 
 spinner = DEF_SPINNER
 spinner_text = DEF_SPINNER_TEXT
@@ -49,8 +52,8 @@ jobs_panel_instances_name = DEF_JOBS_PANEL_NAMES
 jobs_panel_instances_value = DEF_JOBS_PANEL_VALUES
 jobs_panel_warning_name = DEF_GREYED_OUT
 jobs_panel_warning_value = DEF_GREYED_OUT
-jobs_panel_warning_positive_name = DEF_WARNING
-jobs_panel_warning_positive_value = DEF_WARNING
+jobs_panel_warning_positive_name = warning
+jobs_panel_warning_positive_value = warning
 
 jobs_table_host = DEF_JOBS_TABLE_HOST
 jobs_table_job = DEF_JOBS_TABLE_JOB
@@ -74,3 +77,14 @@ def jobs_panel_warning(warning_count):
         return jobs_panel_warning_positive_name, jobs_panel_warning_positive_value
     else:
         return jobs_panel_warning_name, jobs_panel_warning_value
+
+
+def set_variables(**kwargs):
+    module = sys.modules[__name__]
+    for name, value in kwargs.items():
+        if not name[0].isalpha():
+            raise ValueError(f"Invalid theme variable: {name}")
+        if not hasattr(module, name):
+            raise ValueError(f"Unknown theme variable: {name}")
+
+        setattr(module, name, value)

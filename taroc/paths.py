@@ -5,10 +5,15 @@ from xdg import BaseDirectory
 CONFIG_DIR = 'taroc'
 CONFIG_FILE = 'taroc.yaml'
 SSH_HOSTS = 'ssh.hosts'
+DEFAULT_THEME = 'turtles.theme'
 
 
 def lookup_config_file():
     return lookup_file_in_config_path(CONFIG_FILE)
+
+
+def lookup_default_theme_file():
+    return lookup_file_in_config_path(DEFAULT_THEME)
 
 
 def lookup_file_in_config_path(file) -> Path:
