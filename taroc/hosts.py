@@ -17,17 +17,17 @@ class Include(Enum):
     ALL = auto()
 
 
-def read_ssh_hosts(*groups, no_group=Include.ALL):
+def read_ssh_hosts_file(*groups, no_group=Include.ALL):
     """Returns dictionary of {host_group to hosts} entries from SSH hosts file
     :param groups: host groups to include
     :param no_group: behaviour when no host groups are provided
     :return: host_group to hosts dict
     :raise FileNotFoundError: when SSH hosts file cannot be found
     """
-    return read(paths.SSH_HOSTS, *groups, no_group=no_group)
+    return read_file(paths.SSH_HOSTS, *groups, no_group=no_group)
 
 
-def read(hosts_file, *groups, no_group=Include.ALL) -> dict[str, List[str]]:
+def read_file(hosts_file, *groups, no_group=Include.ALL) -> dict[str, List[str]]:
     """Returns dictionary of {host_group to hosts} entries from provided hosts file
     :param hosts_file: ini file with sections representing host groups
     :param groups: host groups to include

@@ -22,7 +22,7 @@ def _group_to_hosts(args):
         return {'cli_args': args.host}
 
     try:
-        return hosts.read_ssh_hosts()
+        return hosts.read_ssh_hosts_file()
     except FileNotFoundError:
         raise InvalidExecutionError('No hosts provided and SSH hosts file not found')
 
