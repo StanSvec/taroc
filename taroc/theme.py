@@ -10,16 +10,6 @@ DEF_PANEL_BORDER = 'bright_cyan'
 DEF_SPINNER = 'bold green'
 DEF_SPINNER_TEXT = 'bold green'
 
-DEF_HOSTS_PANEL_TITLE = DEF_PANEL_BORDER
-DEF_HOSTS_PANEL_BORDER = DEF_PANEL_BORDER
-DEF_HOSTS_PANEL_NAMES = DEF_LABEL
-DEF_HOSTS_PANEL_VALUES = DEF_VALUE
-
-DEF_JOBS_PANEL_TITLE = DEF_PANEL_BORDER
-DEF_JOBS_PANEL_BORDER = DEF_PANEL_BORDER
-DEF_JOBS_PANEL_NAMES = DEF_LABEL
-DEF_JOBS_PANEL_VALUES = DEF_VALUE
-
 DEF_JOBS_TABLE_HOST = 'white'
 DEF_JOBS_TABLE_JOB = 'bold white'
 DEF_JOBS_TABLE_INSTANCE = 'bright_black'
@@ -29,29 +19,34 @@ DEF_JOBS_TABLE_STATE_RUNNING = 'bright_cyan'
 DEF_JOBS_TABLE_WARNING = DEF_WARNING
 DEF_JOBS_TABLE_STATUS = 'bright_white'
 
+value = DEF_VALUE
+label = DEF_LABEL
 greyed_out = DEF_GREYED_OUT
 warning = DEF_WARNING
+error = DEF_ERROR
 
 spinner = DEF_SPINNER
 spinner_text = DEF_SPINNER_TEXT
 
-progress_status = DEF_VALUE
+progress_status = value
 
-hosts_panel_title = DEF_HOSTS_PANEL_TITLE
-hosts_panel_border = DEF_HOSTS_PANEL_BORDER
-hosts_panel_successful_name = DEF_HOSTS_PANEL_NAMES
-hosts_panel_successful_value = DEF_HOSTS_PANEL_VALUES
-hosts_panel_failed_name = DEF_GREYED_OUT
-hosts_panel_failed_value = DEF_GREYED_OUT
-hosts_panel_failed_positive_name = DEF_ERROR
-hosts_panel_failed_positive_value = DEF_ERROR
+panel_border = DEF_PANEL_BORDER
 
-jobs_panel_title = DEF_JOBS_PANEL_TITLE
-jobs_panel_border = DEF_JOBS_PANEL_BORDER
-jobs_panel_instances_name = DEF_JOBS_PANEL_NAMES
-jobs_panel_instances_value = DEF_JOBS_PANEL_VALUES
-jobs_panel_warning_name = DEF_GREYED_OUT
-jobs_panel_warning_value = DEF_GREYED_OUT
+hosts_panel_title = panel_border
+hosts_panel_border = panel_border
+hosts_panel_successful_name = label
+hosts_panel_successful_value = value
+hosts_panel_failed_name = greyed_out
+hosts_panel_failed_value = greyed_out
+hosts_panel_failed_positive_name = error
+hosts_panel_failed_positive_value = error
+
+jobs_panel_title = panel_border
+jobs_panel_border = panel_border
+jobs_panel_instances_name = label
+jobs_panel_instances_value = value
+jobs_panel_warning_name = greyed_out
+jobs_panel_warning_value = greyed_out
 jobs_panel_warning_positive_name = warning
 jobs_panel_warning_positive_value = warning
 
