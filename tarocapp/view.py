@@ -138,10 +138,10 @@ class HostsPanel:
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
             BarColumn(),
-            f"[{Theme.progress_status}]" + "{task.completed}/{task.total}",
+            f"[{Theme.hosts_panel_progress_status}]" + "{task.completed}/{task.total}",
             CustomTimeElapsedColumn()
         )
-        self._task_id = self._progress_bar.add_task(f"[{Theme.hosts_panel_successful_name}]Connected[/]",
+        self._task_id = self._progress_bar.add_task(f"[{Theme.hosts_panel_progress_label}]Connected[/]",
                                                     total=model.host_count)
 
         grid = Table.grid()
@@ -295,6 +295,6 @@ class CustomTimeElapsedColumn(ProgressColumn):
         """Show time remaining."""
         elapsed = task.finished_time if task.finished else task.elapsed
         if elapsed is None:
-            return Text("-:--:--", style="white")
+            return Text("-:--:--", style=Theme.hosts_panel_progress_elapsed)
         delta = timedelta(seconds=int(elapsed))
-        return Text(str(delta), style="white")
+        return Text(str(delta), style=Theme.hosts_panel_progress_elapsed)

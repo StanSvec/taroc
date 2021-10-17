@@ -11,12 +11,13 @@ class Theme(metaclass=StaticRefValueSupport):
     spinner = RefValue('bold green')
     spinner_text = RefValue('bold green')
 
-    progress_status = RefValue(value)
-
     panel_border = RefValue('bright_cyan')
 
     hosts_panel_title = RefValue(panel_border)
     hosts_panel_border = RefValue(panel_border)
+    hosts_panel_progress_label = RefValue(label)
+    hosts_panel_progress_status = RefValue(value)
+    hosts_panel_progress_elapsed = RefValue(value)
     hosts_panel_successful_name = RefValue(label)
     hosts_panel_successful_value = RefValue(value)
     hosts_panel_failed_name = RefValue(greyed_out)
