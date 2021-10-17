@@ -12,10 +12,14 @@ DEF_SSH_CONFIG_ENABLED = False
 DEF_SSH_CON_TIMEOUT = 5
 DEF_SSH_RUN_TIMEOUT = 5
 
+DEF_THEME = ''
+
 # ------------ CONFIG VALUES ------------ #
 ssh_config_enabled = DEF_SSH_CONFIG_ENABLED
 ssh_con_timeout = DEF_SSH_CON_TIMEOUT
 ssh_run_timeout = DEF_SSH_RUN_TIMEOUT
+
+theme = DEF_THEME
 
 
 def set_variables(**kwargs):

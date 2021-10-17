@@ -1,7 +1,7 @@
 import sys
 
 import taroc
-from taroc import util
+from taroc import cfg, themefile, util
 from tarocapp import cmd, cli
 from tarocapp.err import InvalidExecutionError
 
@@ -44,3 +44,6 @@ def init_taroc(args):
         taroc.setup(**config_vars)
     else:
         taroc.load_config(**config_vars)
+
+    if cfg.theme:
+        themefile.load_theme(cfg.theme)

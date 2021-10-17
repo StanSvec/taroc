@@ -76,10 +76,10 @@ def jobs_panel_warning(warning_count):
 
 def set_variables(**kwargs):
     module = sys.modules[__name__]
-    for name, value in kwargs.items():
+    for name, val in kwargs.items():
         if not name[0].isalpha():
             raise ValueError(f"Invalid theme variable: {name}")
         if not hasattr(module, name):
             raise ValueError(f"Unknown theme variable: {name}")
 
-        setattr(module, name, value)
+        setattr(module, name, val)
