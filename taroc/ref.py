@@ -24,7 +24,7 @@ class RefValue:
         setattr(instance, self.internal_name, value)
 
 
-class ClassRefValueSupport(type):
+class StaticRefValueSupport(type):
 
     def __setattr__(self, key, value):
         field = self.__dict__.get(key)

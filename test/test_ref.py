@@ -1,8 +1,8 @@
-from taroc.ref import RefValue, ClassRefValueSupport
+from taroc.ref import RefValue, StaticRefValueSupport
 
 
 def test_access_def_value():
-    class Test(metaclass=ClassRefValueSupport):
+    class Test(metaclass=StaticRefValueSupport):
         f = RefValue(5)
 
     assert Test.f == 5
@@ -10,7 +10,7 @@ def test_access_def_value():
 
 
 def test_value_setting():
-    class Test(metaclass=ClassRefValueSupport):
+    class Test(metaclass=StaticRefValueSupport):
         f = RefValue(5)
 
     t1 = Test()
@@ -27,7 +27,7 @@ def test_value_setting():
 
 
 def test_reference_def_val():
-    class Test(metaclass=ClassRefValueSupport):
+    class Test(metaclass=StaticRefValueSupport):
         f = RefValue(5)
         ref1 = RefValue(f)
         ref2 = RefValue(f)
@@ -37,7 +37,7 @@ def test_reference_def_val():
 
 
 def test_reference():
-    class Test(metaclass=ClassRefValueSupport):
+    class Test(metaclass=StaticRefValueSupport):
         f = RefValue(5)
         ref1 = RefValue(f)
         ref2 = RefValue(f)
@@ -48,7 +48,7 @@ def test_reference():
 
 
 def test_reference_changes():
-    class Test(metaclass=ClassRefValueSupport):
+    class Test(metaclass=StaticRefValueSupport):
         f1 = RefValue(5)
         ref1 = RefValue(f1)
         ref2 = RefValue(f1)

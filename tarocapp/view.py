@@ -10,8 +10,9 @@ from rich.spinner import Spinner
 from rich.table import Table, Column
 from rich.text import Text
 
-from taroc import JobInstance, util, theme
+from taroc import JobInstance, util
 from taroc.job import ExecutionState
+from taroc.theme import Theme
 from tarocapp.model import JobInstancesModelObserver, JobInstancesModel, ModelUpdateEvent
 
 
@@ -77,19 +78,19 @@ class StateColumn(JobColumn):
         value = self.value(job_instance)
         style = 'white'
         if value == ExecutionState.RUNNING:
-            style = theme.jobs_table_state_running
+            style = Theme.jobs_table_state_running
         return Text(value.name, style=style)
 
 
 class JobColumns:
-    HOST = StaticJobColumn('Host', lambda job: job.host, theme.jobs_table_host)
-    JOB_ID = StaticJobColumn('Job ID', lambda job: job.job_id, theme.jobs_table_job)
-    INSTANCE_ID = StaticJobColumn('Instance ID', lambda job: job.instance_id, theme.jobs_table_instance)
-    CREATED = StaticJobColumn('Created', lambda job: job.created, theme.jobs_table_created)
-    TIME = StaticJobColumn('Execution Time', lambda job: job.execution_time, theme.jobs_table_time)
+    HOST = StaticJobColumn('Host', lambda job: job.host, Theme.jobs_table_host)
+    JOB_ID = StaticJobColumn('Job ID', lambda job: job.job_id, Theme.jobs_table_job)
+    INSTANCE_ID = StaticJobColumn('Instance ID', lambda job: job.instance_id, Theme.jobs_table_instance)
+    CREATED = StaticJobColumn('Created', lambda job: job.created, Theme.jobs_table_created)
+    TIME = StaticJobColumn('Execution Time', lambda job: job.execution_time, Theme.jobs_table_time)
     STATE = StateColumn()
-    WARNINGS = StaticJobColumn('Warnings', lambda job: job.warnings, theme.jobs_table_warns)
-    STATUS = StaticJobColumn('Status', lambda job: job.status, theme.jobs_table_status)
+    WARNINGS = StaticJobColumn('Warnings', lambda job: job.warnings, Theme.jobs_table_warns)
+    STATUS = StaticJobColumn('Status', lambda job: job.status, Theme.jobs_table_status)
 
 
 class JobInstancesView(JobInstancesModelObserver):
@@ -100,7 +101,7 @@ class JobInstancesView(JobInstancesModelObserver):
         self._status_panel = StatusPanel(model)
         self._table = Table(*[c.column for c in columns], box=box.SIMPLE)
         self._host_errors = HostErrors(model)
-        self._spinner = Spinner('simpleDotsScrolling', f"[{theme.spinner}]Fetching jobs...", style=theme.spinner)
+        self._spinner = Spinner('simpleDotsScrolling', f"[{Theme.spinner}]Fetching jobs...", style=Theme.spinner)
 
     def model_update(self, model: JobInstancesModel, event: ModelUpdateEvent):
         for job in event.new_instances:
@@ -137,10 +138,10 @@ class HostsPanel:
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
             BarColumn(),
-            f"[{theme.progress_status}]" + "{task.completed}/{task.total}",
+            f"[{Theme.progress_status}]" + "{task.completed}/{task.total}",
             CustomTimeElapsedColumn()
         )
-        self._task_id = self._progress_bar.add_task(f"[{theme.hosts_panel_successful_name}]Connected[/]",
+        self._task_id = self._progress_bar.add_task(f"[{Theme.hosts_panel_successful_name}]Connected[/]",
                                                     total=model.host_count)
 
         grid = Table.grid()
@@ -149,7 +150,7 @@ class HostsPanel:
             HostsSuccessful('Successful', 4, model),
             HostsFailed('Failed', 4, model),
         )
-        self._panel = Panel(grid, title=f"[{theme.hosts_panel_title}]Hosts[/]", style=theme.hosts_panel_border)
+        self._panel = Panel(grid, title=f"[{Theme.hosts_panel_title}]Hosts[/]", style=Theme.hosts_panel_border)
 
     def _sync_progress(self):
         new_completed = self._model.host_completed_count - self._find_task().completed
@@ -178,7 +179,7 @@ class JobsPanel:
             StateToCount(model),
         )
 
-        self.panel = Panel(grid, title=f"[{theme.jobs_panel_title}]Jobs[/]", style=theme.jobs_panel_border)
+        self.panel = Panel(grid, title=f"[{Theme.jobs_panel_title}]Jobs[/]", style=Theme.jobs_panel_border)
 
     def __rich__(self):
         return self.panel
@@ -217,7 +218,7 @@ class HostsSuccessful(SingleValue):
         return self.model.host_successful_count
 
     def styles(self):
-        return theme.hosts_panel_successful_name, theme.hosts_panel_successful_value
+        return Theme.hosts_panel_successful_name, Theme.hosts_panel_successful_value
 
 
 class HostsFailed(SingleValue):
@@ -230,7 +231,7 @@ class HostsFailed(SingleValue):
         return len(self.model.host_errors)
 
     def styles(self):
-        return theme.hosts_panel_failed(self.value())
+        return Theme.hosts_panel_failed(self.value())
 
 
 class Instances(SingleValue):
@@ -243,7 +244,7 @@ class Instances(SingleValue):
         return len(self.model.job_instances)
 
     def styles(self):
-        return theme.jobs_panel_instances_name, theme.jobs_panel_instances_value
+        return Theme.jobs_panel_instances_name, Theme.jobs_panel_instances_value
 
 
 class WarningVal(SingleValue):
@@ -256,7 +257,7 @@ class WarningVal(SingleValue):
         return len(self.model.job_instances.warning_instances())
 
     def styles(self):
-        return theme.jobs_panel_warning(self.value())
+        return Theme.jobs_panel_warning(self.value())
 
 
 class StateToCount:

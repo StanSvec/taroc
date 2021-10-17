@@ -1,6 +1,7 @@
 import configparser
 
-from taroc import paths, theme
+from taroc import paths
+from taroc.theme import Theme
 
 
 def load_default():
@@ -10,7 +11,7 @@ def load_default():
 def load_theme(theme_file):
     obj_to_vars = read_file(paths.lookup_file_in_config_path(theme_file))
     all_vars = _flatten(obj_to_vars)
-    theme.set_variables(**all_vars)
+    Theme.set_variables(**all_vars)
 
 
 def read_file(theme_file) -> dict[str, dict[str, str]]:
