@@ -18,9 +18,21 @@ from tarocapp.model import JobInstancesModelObserver, JobInstancesModel, ModelUp
 
 class JobColumn(ABC):
 
-    def __init__(self, header, none_placeholder=''):
+    def __init__(self, header):
         self.header = header
-        self.none_renderable = none_placeholder
+        self.column = Column(header=header)
+
+    @abstractmethod
+    def renderable(self, job_instance) -> RenderableType:
+        """Return value for the column"""
+
+
+class FormattedJobColumn(JobColumn):
+
+    def __init__(self, header, *, none_placeholder='', max_length=0):
+        self.header = header
+        self.none_placeholder = none_placeholder
+        self.max_length = max_length
         self.column = Column(header=header)
 
     @abstractmethod
@@ -28,14 +40,18 @@ class JobColumn(ABC):
         """Return value for the column"""
 
     def renderable(self, job_instance) -> RenderableType:
-        return self.job_to_str(job_instance)
+        render_str = self.job_to_str(job_instance)
+        if self.max_length:
+            return render_str[:self.max_length]
+        else:
+            return render_str
 
     def job_to_str(self, job_instance):
         return self.value_to_str(self.value(job_instance))
 
     def value_to_str(self, value) -> RenderableType:
         if value is None:
-            return self.none_renderable
+            return self.none_placeholder
         if isinstance(value, ExecutionState):
             return value.name
         if isinstance(value, datetime):
@@ -48,10 +64,10 @@ class JobColumn(ABC):
         return str(value)
 
 
-class StaticJobColumn(JobColumn):
+class StyledJobColumn(FormattedJobColumn):
 
-    def __init__(self, header, value_fnc, style='bright_white'):
-        super().__init__(header)
+    def __init__(self, header, value_fnc, style='bright_white', *, none_placeholder='', max_length=0):
+        super().__init__(header, none_placeholder=none_placeholder, max_length=max_length)
         self.value_fnc = value_fnc
         self.style = style
 
@@ -71,11 +87,8 @@ class StateColumn(JobColumn):
     def __init__(self):
         super().__init__('State')
 
-    def value(self, job_instance: JobInstance):
-        return job_instance.state
-
     def renderable(self, job_instance) -> RenderableType:
-        value = self.value(job_instance)
+        value = job_instance.state
         style = 'white'
         if value == ExecutionState.RUNNING:
             style = Theme.jobs_table_state_running
@@ -83,14 +96,14 @@ class StateColumn(JobColumn):
 
 
 class JobColumns:
-    HOST = StaticJobColumn('Host', lambda job: job.host, Theme.jobs_table_host)
-    JOB_ID = StaticJobColumn('Job ID', lambda job: job.job_id, Theme.jobs_table_job)
-    INSTANCE_ID = StaticJobColumn('Instance ID', lambda job: job.instance_id, Theme.jobs_table_instance)
-    CREATED = StaticJobColumn('Created', lambda job: job.created, Theme.jobs_table_created)
-    TIME = StaticJobColumn('Execution Time', lambda job: job.execution_time, Theme.jobs_table_time)
+    HOST = StyledJobColumn('Host', lambda job: job.host, Theme.jobs_table_host)
+    JOB_ID = StyledJobColumn('Job ID', lambda job: job.job_id, Theme.jobs_table_job)
+    INSTANCE_ID = StyledJobColumn('Instance ID', lambda job: job.instance_id, Theme.jobs_table_instance)
+    CREATED = StyledJobColumn('Created', lambda job: job.created, Theme.jobs_table_created)
+    TIME = StyledJobColumn('Execution Time', lambda job: job.execution_time, Theme.jobs_table_time)
     STATE = StateColumn()
-    WARNINGS = StaticJobColumn('Warnings', lambda job: job.warnings, Theme.jobs_table_warns)
-    STATUS = StaticJobColumn('Status', lambda job: job.status, Theme.jobs_table_status)
+    WARNINGS = StyledJobColumn('Warnings', lambda job: job.warnings, Theme.jobs_table_warns)
+    STATUS = StyledJobColumn('Status', lambda job: job.status, Theme.jobs_table_status)
 
 
 class JobInstancesView(JobInstancesModelObserver):
