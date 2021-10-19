@@ -10,7 +10,7 @@ from rich.spinner import Spinner
 from rich.table import Table, Column
 from rich.text import Text
 
-from taroc import JobInstance, util
+from taroc import JobInstance, util, cfg
 from taroc.job import ExecutionState
 from taroc.theme import Theme
 from tarocapp.model import JobInstancesModelObserver, JobInstancesModel, ModelUpdateEvent
@@ -40,14 +40,16 @@ class FormattedJobColumn(JobColumn):
         """Return value for the column"""
 
     def renderable(self, job_instance) -> RenderableType:
-        render_str = self.job_to_str(job_instance)
-        if self.max_length:
-            return render_str[:self.max_length]
-        else:
-            return render_str
+        return self.job_to_str(job_instance)
 
     def job_to_str(self, job_instance):
-        return self.value_to_str(self.value(job_instance))
+        render_str = self.value_to_str(self.value(job_instance))
+        if self.max_length and len(render_str) > self.max_length:
+            # return self.max_length
+            return render_str[:self.max_length - 2] + ".."
+        else:
+            return render_str
+            # return self.max_length
 
     def value_to_str(self, value) -> RenderableType:
         if value is None:
@@ -103,7 +105,8 @@ class JobColumns:
     TIME = StyledJobColumn('Execution Time', lambda job: job.execution_time, Theme.jobs_table_time)
     STATE = StateColumn()
     WARNINGS = StyledJobColumn('Warnings', lambda job: job.warnings, Theme.jobs_table_warns)
-    STATUS = StyledJobColumn('Status', lambda job: job.status, Theme.jobs_table_status)
+    STATUS = StyledJobColumn('Status', lambda job: job.status, Theme.jobs_table_status,
+                             max_length=cfg.table_jobs_status_max_length)
 
 
 class JobInstancesView(JobInstancesModelObserver):
