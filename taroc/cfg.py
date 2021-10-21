@@ -14,7 +14,7 @@ DEF_SSH_RUN_TIMEOUT = 5
 
 DEF_THEME = ''
 
-DEF_TABLE_JOBS_STATUS_MAX_LENGTH = 500
+DEF_STATUS_MAX_LENGTH = 500
 
 # ------------ CONFIG VALUES ------------ #
 ssh_config_enabled = DEF_SSH_CONFIG_ENABLED
@@ -23,7 +23,7 @@ ssh_run_timeout = DEF_SSH_RUN_TIMEOUT
 
 theme = DEF_THEME
 
-table_jobs_status_max_length = DEF_TABLE_JOBS_STATUS_MAX_LENGTH
+status_max_length = DEF_STATUS_MAX_LENGTH
 
 
 def set_variables(**kwargs):

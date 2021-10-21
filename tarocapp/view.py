@@ -106,7 +106,7 @@ class JobColumns:
     STATE = StateColumn()
     WARNINGS = StyledJobColumn('Warnings', lambda job: job.warnings, Theme.jobs_table_warns)
     STATUS = StyledJobColumn('Status', lambda job: job.status, Theme.jobs_table_status,
-                             max_length=cfg.table_jobs_status_max_length)
+                             max_length=cfg.status_max_length)
 
 
 class JobInstancesView(JobInstancesModelObserver):
