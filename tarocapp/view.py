@@ -30,10 +30,9 @@ class JobColumn(ABC):
 class FormattedJobColumn(JobColumn):
 
     def __init__(self, header, *, none_placeholder='', max_length=0):
-        self.header = header
+        super().__init__(header)
         self.none_placeholder = none_placeholder
         self.max_length = max_length
-        self.column = Column(header=header)
 
     @abstractmethod
     def value(self, job_instance: JobInstance):
