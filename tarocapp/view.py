@@ -152,7 +152,7 @@ class HostsPanel:
         self._model = model
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
-            BarColumn(),
+            BarColumn(complete_style=Theme.progress_bar_complete),
             f"[{Theme.hosts_panel_progress_status}]" + "{task.completed}/{task.total}",
             CustomTimeElapsedColumn()
         )

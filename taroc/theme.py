@@ -8,8 +8,11 @@ class Theme(metaclass=StaticRefValueSupport):
     warning = RefValue('red')
     error = RefValue('bright_red')
 
+    progress_bar_complete = 'bar.complete'
+    progress_bar_finished = 'bar.finished'
+
     spinner = RefValue('bold green')
-    spinner_text = RefValue('bold green')
+    spinner_text = RefValue(spinner)
 
     panel_border = RefValue('bright_cyan')
 
