@@ -295,7 +295,7 @@ class HostErrors:
     def _sync_rows(self):
         new_host_errors = self._model.host_errors[len(self._table.rows):]
         for host, err in new_host_errors:
-            self._table.add_row(f"{host}: [red]{type(err).__name__} {err}[/]")
+            self._table.add_row(f"{host}: [{Theme.error}]{type(err).__name__} {err}[/]")
 
     def __rich__(self):
         self._sync_rows()
