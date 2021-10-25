@@ -16,6 +16,8 @@ class Theme(metaclass=StaticRefValueSupport):
 
     panel_border = RefValue('bright_cyan')
 
+    state_running = RefValue('bright_cyan')
+
     hosts_panel_title = RefValue(panel_border)
     hosts_panel_border = RefValue(panel_border)
     hosts_panel_progress_label = RefValue(label)
@@ -37,12 +39,13 @@ class Theme(metaclass=StaticRefValueSupport):
     jobs_panel_warning_positive_name = RefValue(warning)
     jobs_panel_warning_positive_value = RefValue(warning)
 
+    jobs_table_header = 'table.header'
     jobs_table_host = 'white'
     jobs_table_job = 'bold white'
     jobs_table_instance = 'bright_black'
     jobs_table_created = 'green'
     jobs_table_time = 'green'
-    jobs_table_state_running = 'bright_cyan'
+    jobs_table_state_running = RefValue(state_running)
     jobs_table_warns = RefValue(warning)
     jobs_table_status = 'bright_white'
 

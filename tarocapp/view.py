@@ -114,7 +114,7 @@ class JobInstancesView(JobInstancesModelObserver):
         self._columns = columns
         self._model = model
         self._status_panel = StatusPanel(model)
-        self._table = Table(*[c.column for c in columns], box=box.SIMPLE)
+        self._table = Table(*[c.column for c in columns], box=box.SIMPLE, header_style=Theme.jobs_table_header)
         self._host_errors = HostErrors(model)
         self._spinner = Spinner('simpleDotsScrolling', f"[{Theme.spinner}]Fetching jobs...", style=Theme.spinner)
 
@@ -281,8 +281,9 @@ class StateToCount:
         self._model = model
 
     def __rich__(self):
+        # TODO support more states
         return " | ".join(
-            f"[white]{state.name}: {len(jobs)}[/]" for state, jobs in
+            f"[{Theme.state_running}]{state.name}:[/] [{Theme.value}]{len(jobs)}[/]" for state, jobs in
             self._model.job_instances.state_to_instances().items())
 
 
