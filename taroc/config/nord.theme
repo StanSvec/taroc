@@ -1,0 +1,24 @@
+[general]
+value=#eceff4
+label=#d8dee9
+greyed_out=#4C566A
+warning=#D08778
+error=#bf616a
+
+panel_border=#5e81ac
+progress_bar_complete=#ebcb8b
+progress_bar_finished=#a3be8c
+spinner=#ebcb8b
+
+[state]
+running=#81a1c1
+
+[jobs_table]
+header=bold #e5e9f0
+host=#D8DEE9
+job=bold #ECEFF4
+instance=#4C566A
+created=#88c0d0
+time=#88c0d0
+warns=#D08778
+status=#E5E9F0
