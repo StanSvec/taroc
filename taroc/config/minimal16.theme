@@ -1,0 +1,8 @@
+[general]
+label=white
+value=bright_white
+panel_border=bold bright_black
+progress_bar_finished=white
+
+[jobs_table]
+border=bold bright_black
