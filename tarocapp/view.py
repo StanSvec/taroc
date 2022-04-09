@@ -114,7 +114,8 @@ class JobInstancesView(JobInstancesModelObserver):
         self._columns = columns
         self._model = model
         self._status_panel = StatusPanel(model)
-        self._table = Table(*[c.column for c in columns], box=box.SIMPLE, header_style=Theme.jobs_table_header)
+        self._table = Table(*[c.column for c in columns], box=box.SIMPLE, header_style=Theme.jobs_table_header,
+                            border_style=Theme.jobs_table_border)
         self._host_errors = HostErrors(model)
         self._spinner = Spinner('simpleDotsScrolling', f"[{Theme.spinner}]Fetching jobs...", style=Theme.spinner)
 
@@ -152,7 +153,7 @@ class HostsPanel:
         self._model = model
         self._progress_bar = Progress(
             "[progress.description]{task.description}",
-            BarColumn(complete_style=Theme.progress_bar_complete),
+            BarColumn(complete_style=Theme.progress_bar_complete, finished_style=Theme.progress_bar_finished),
             f"[{Theme.hosts_panel_progress_status}]" + "{task.completed}/{task.total}",
             CustomTimeElapsedColumn()
         )

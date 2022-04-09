@@ -1,17 +1,21 @@
+"""
+https://rich.readthedocs.io/en/stable/appendix/colors.html
+"""
+
 from taroc.ref import RefValue, StaticRefValueSupport
 
 
 class Theme(metaclass=StaticRefValueSupport):
     value = RefValue('white')
-    label = RefValue('bright_green')
+    label = RefValue('bright_white')
     greyed_out = RefValue('bright_black')
     warning = RefValue('red')
     error = RefValue('bright_red')
 
     progress_bar_complete = 'bar.complete'
-    progress_bar_finished = 'bar.finished'
+    progress_bar_finished = 'spring_green1'
 
-    spinner = RefValue('bold green')
+    spinner = RefValue('bold white')
     spinner_text = RefValue(spinner)
 
     panel_border = RefValue('bright_cyan')
@@ -43,11 +47,12 @@ class Theme(metaclass=StaticRefValueSupport):
     jobs_table_host = 'white'
     jobs_table_job = 'bold white'
     jobs_table_instance = 'bright_black'
-    jobs_table_created = 'green'
-    jobs_table_time = 'green'
+    jobs_table_created = 'white'
+    jobs_table_time = 'white'
     jobs_table_state_running = RefValue(state_running)
     jobs_table_warns = RefValue(warning)
     jobs_table_status = 'bright_white'
+    jobs_table_border = 'bright_cyan'
 
     @staticmethod
     def hosts_panel_failed(failed_count):

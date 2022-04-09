@@ -1,0 +1,9 @@
+[general]
+label=bright_green
+
+progress_bar_finished=bar.finished
+spinner=bold green
+
+[jobs_table]
+created=green
+time=green
