@@ -1,4 +1,7 @@
+import os
 import sys
+
+import rich
 
 import taroc
 from taroc import cfg, themefile, util
@@ -21,6 +24,7 @@ def main(args):
     """
     args_ns = cli.parse_args(args)
     init_taroc(args_ns)
+    disable_color_if_requested(args_ns)
 
     try:
         cmd.run(args_ns)
@@ -47,3 +51,8 @@ def init_taroc(args):
 
     if cfg.theme:
         themefile.load_theme(cfg.theme)
+
+
+def disable_color_if_requested(args):
+    if getattr(args, 'no_color', None) or 'TARO_NO_COLOR' in os.environ:
+        rich.get_console().no_color = True

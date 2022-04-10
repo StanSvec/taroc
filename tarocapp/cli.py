@@ -13,6 +13,7 @@ def parse_args(args):
     common.add_argument('-mc', '--min-config', action='store_true',
                         help='ignore config files and use minimum configuration')
     common.add_argument('-C', '--config', type=str, help='path to custom config file')
+    common.add_argument('--no-color', action='store_true', help='disable colorized output')
 
     subparsers = parser.add_subparsers(dest='action')  # command/action
 
