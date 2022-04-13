@@ -11,7 +11,7 @@ def parse_args(args):
     common.add_argument('--set', type=str, action='append', help='override value of configuration field')
     common.add_argument('-dc', '--def-config', action='store_true', help='ignore config files and use defaults')
     common.add_argument('-mc', '--min-config', action='store_true',
-                        help='ignore config files and use minimum configuration')
+                        help='ignore config files and use minimal configuration')
     common.add_argument('-C', '--config', type=str, help='path to custom config file')
     common.add_argument('--no-color', action='store_true', help='disable colorized output')
 

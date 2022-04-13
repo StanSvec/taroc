@@ -8,7 +8,9 @@ import distutils.util
 import sys
 
 # ------------ DEFAULT VALUES ------------ #
-DEF_SSH_CONFIG_ENABLED = False
+from taroc.err import Error, ErrCode
+
+DEF_SSH_CONFIG_ENABLED = True
 DEF_SSH_CON_TIMEOUT = 5
 DEF_SSH_RUN_TIMEOUT = 5
 
@@ -29,7 +31,11 @@ status_max_length = DEF_STATUS_MAX_LENGTH
 def set_variables(**kwargs):
     module = sys.modules[__name__]
     for name, value in kwargs.items():
-        cur_value = getattr(module, name)
+        try:
+            cur_value = getattr(module, name)
+        except AttributeError as e:
+            raise InvalidConfigAttribute from e
+
         if type(value) == type(cur_value):
             value_to_set = value
         elif isinstance(cur_value, bool):  # First bool than int, as bool is int..
@@ -40,3 +46,15 @@ def set_variables(**kwargs):
             raise ValueError(f'Cannot convert value {value} to {type(cur_value)}')
 
         setattr(module, name, value_to_set)
+
+
+class InvalidConfig(Error):
+
+    def __init__(self, code, *args):
+        super(InvalidConfig, self).__init__(code, *args)
+
+
+class InvalidConfigAttribute(Error):
+
+    def __init__(self, *args):
+        super(InvalidConfigAttribute, self).__init__(ErrCode.INVALID_CONFIG_ATTR, *args)
