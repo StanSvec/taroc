@@ -6,7 +6,7 @@ import rich
 import taroc
 from taroc import cfg, themefile, util
 from tarocapp import cmd, cli
-from tarocapp.err import InvalidExecutionError
+from tarocapp.err import NoHosts
 
 
 def main_cli():
@@ -26,11 +26,7 @@ def main(args):
     init_taroc(args_ns)
     disable_color_if_requested(args_ns)
 
-    try:
-        cmd.run(args_ns)
-    except InvalidExecutionError as e:
-        print("Error: " + str(e), file=sys.stderr)
-        raise SystemExit(1)
+    cmd.run(args_ns)
 
 
 def init_taroc(args):

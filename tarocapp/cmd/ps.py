@@ -5,7 +5,7 @@ from rich.live import Live
 
 import taroc
 from taroc import hosts, HostInfo
-from tarocapp.err import InvalidExecutionError
+from tarocapp.err import NoHosts
 from tarocapp.model import JobInstancesModel
 from tarocapp.view import JobColumns as Col, JobInstancesView
 
@@ -13,18 +13,18 @@ COLUMNS = [Col.HOST, Col.JOB_ID, Col.INSTANCE_ID, Col.CREATED, Col.TIME, Col.STA
 
 
 def run(args):
-    group_to_hosts = _group_to_hosts(args)
+    group_to_hosts = _get_group_to_hosts(args)
     asyncio.run(run_ps(group_to_hosts))
 
 
-def _group_to_hosts(args):
+def _get_group_to_hosts(args):
     if args.host:
         return {'cli_args': args.host}
 
     try:
         return hosts.read_ssh_hosts_file(*args.group if args.group else [])
-    except FileNotFoundError:
-        raise InvalidExecutionError('No hosts provided and SSH hosts file not found')
+    except FileNotFoundError as e:
+        raise NoHosts from e
 
 
 async def run_ps(group_to_hosts):

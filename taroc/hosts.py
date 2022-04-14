@@ -18,10 +18,10 @@ class Include(Enum):
 
 
 def read_ssh_hosts_file(*groups, no_group=Include.ALL):
-    """Returns dictionary of {host_group to hosts} entries from SSH hosts file
+    """Returns dictionary of (host_group, hosts) entries from SSH hosts file
     :param groups: host groups to include
     :param no_group: behaviour when no host groups are provided
-    :return: host_group to hosts dict
+    :return: (host_group, hosts) dict
     :raise FileNotFoundError: when SSH hosts file cannot be found
     """
     return read_file(paths.SSH_HOSTS, *groups, no_group=no_group)

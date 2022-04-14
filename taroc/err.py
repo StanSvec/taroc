@@ -7,6 +7,8 @@ class ErrCode(Enum):
 
     INVALID_CONFIG_ATTR = 2
 
+    NO_SSH_HOSTS = 3
+
     def __init__(self, code: int):
         self.code = code
 
