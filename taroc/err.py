@@ -30,4 +30,5 @@ class Error(Exception):
         else:
             msg = '<details missing>'
 
-        return f"{msg} (See {self.code} code in ERRORS.md in Github repo for more information)"
+        return f"{msg} (See {self.code} code in ERRORS.md in Github repo for more information," \
+               f" use --debug for full stack)"

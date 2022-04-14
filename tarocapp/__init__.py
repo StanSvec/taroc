@@ -1,10 +1,12 @@
 import os
 import sys
+import traceback
 
 import rich
 
 import taroc
 from taroc import cfg, themefile, util
+from taroc.err import Error
 from tarocapp import cmd, cli
 from tarocapp.err import NoHosts
 
@@ -23,10 +25,17 @@ def main(args):
     :param args: CLI arguments
     """
     args_ns = cli.parse_args(args)
-    init_taroc(args_ns)
     disable_color_if_requested(args_ns)
 
-    cmd.run(args_ns)
+    try:
+        init_taroc(args_ns)
+        cmd.run(args_ns)
+    except Error as e:
+        if getattr(args_ns, 'debug', False):
+            traceback.print_exc(file=sys.stderr)
+        else:
+            print(str(e.code) + ": " + str(e), file=sys.stderr)
+            raise SystemExit(1)
 
 
 def init_taroc(args):
